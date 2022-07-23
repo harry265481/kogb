@@ -1139,4 +1139,9 @@ function getElectionResultsTable($link, $seatID) {
 function getUsername($link, $ID) {
     return mysqli_fetch_array(mysqli_query($link, "SELECT username FROM users WHERE id = {$ID}"))[0];
 }
+
+function getTimeStuff($link) {
+    $sql = mysqli_fetch_array(mysqli_query($link, "SELECT * FROM `years` ORDER BY Year DESC LIMIT 1"));
+    return $sql;
+}
 ?> 
