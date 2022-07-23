@@ -7,7 +7,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 include_once 'config.php';
 
 $link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
-$sqlget = "SELECT * FROM People WHERE User = " . $_SESSION["id"];
+$sqlget = "SELECT * FROM people WHERE User = " . $_SESSION["id"];
 $sqldata = mysqli_query($link, $sqlget);
 $sqlrows = mysqli_num_rows($sqldata);
 if($sqlrows == 0) {
@@ -17,13 +17,13 @@ if($sqlrows == 0) {
 $character_err = "";
 $firstname = $lastname = $birthyear = $title = "";
 
-$sqlget = "SELECT approved FROM People WHERE User = " . $_SESSION["id"];
+$sqlget = "SELECT approved FROM people WHERE User = " . $_SESSION["id"];
 $sqldata = mysqli_query($link, $sqlget);
 $sqlapproval = mysqli_fetch_assoc($sqldata);
 if($sqlapproval['approved'] == 0) {
     $character_err = "Your character has not been approved yet";
 } else {
-    $sqlget = "SELECT * FROM People WHERE User = " . $_SESSION["id"];
+    $sqlget = "SELECT * FROM people WHERE User = " . $_SESSION["id"];
     $sqldata = mysqli_query($link, $sqlget);
     $sqlchar = mysqli_fetch_assoc($sqldata);
 
