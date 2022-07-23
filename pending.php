@@ -11,7 +11,7 @@ if($_SESSION["adminlevel"] <= 0){
 }
 
 $link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
-$sqlget = 'SELECT ID, FirstName, LastName, BirthYear, NobleTitle FROM People WHERE Approved = 0';
+$sqlget = 'SELECT ID, FirstName, LastName, BirthYear, User, NobleTitle FROM People WHERE Approved = 0';
 $sqldata = mysqli_query($link, $sqlget) or die('Connection could not be established');
 
 include 'functions.php';
@@ -42,14 +42,14 @@ while ($row = mysqli_fetch_array($sqldata, MYSQLI_ASSOC)) {
     echo '<td>' . $row['ID'] .' </td>';
     echo '<td>' . $row['FirstName'] . ' ' . $row['LastName'] . '</td>';
     echo '<td>' . $row['BirthYear'] .' </td>';
+    echo '<td>' . getUsername($link, $row['User']) .' </td>';
     echo '<td>' . $row['NobleTitle'] .' </td>';
     echo '<form action=app.php method=get>';
     echo "<td><input class='btn btn-primary btn-outline' type=submit name=view value=View></td>";
-    echo "<td style='display:none;'>".'<input type=hidden name=id value='.$row['ID'].' </td>';
+    echo "<td style='display:none;'><input type=hidden name=id value='{$row['ID']}'</td>";
     echo '</form>';
     echo '</tr>';
 }
-
 echo '</table></div>';
 ?>
 

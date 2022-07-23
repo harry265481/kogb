@@ -498,7 +498,7 @@ function processElection($link, $year) {
                 //Probably NPC replacement, but lets check a few things
                 //Is this a burgage seat?
                 if($franchise == 3) {
-                    processBurgageElection($link, $sqlMPs);
+                    processBurgageElection($link, $electionID, $seatID, $seats, $sqlMPs);
                 } else {
                     //Get the previous MPs, which should all be NPCs
                     $previous = getMPsInSeat($link, $seatID);
@@ -639,7 +639,7 @@ function processCorporationElection($link, $electionID, $seatID, $seats, $sqlMPs
     foreach($mpsinseats as $mp) {
         $moneyinseat += $mp['purse'];
         if($mp['purse'] > 0) {
-            array_push($mps, array($mp['ID'], $mp['purse']));
+            array_push($mps, array(intval($mp['ID']), intval($mp['purse'])));
         }
     }
     //Is there money?
@@ -743,9 +743,8 @@ function processBurgageElection($link, $electionID, $seatID, $seats, $sqlMPs) {
 
     //Get the burgages in the seat owned by the MPs, if any
     foreach($playermps as $pmp) {
-        $count;
-        $sql = "SELECT Count FROM burgageHolders WHERE seatID = {$seatID} AND holderID = {$pmp} AND Count > 0";
-        $burgages = mysqli_query($link, $sql);
+        $burgages = mysqli_query($link, "SELECT Count FROM burgageHolders WHERE seatID = {$seatID} AND holderID = {$pmp} AND Count > 0");
+        $count = mysqli_fetch_array($burgages)[0];
         if(mysqli_num_rows($burgages) > 0) {
             array_push($burgageowningplayers, array($pmp, $count));
         }
@@ -918,7 +917,6 @@ function insertSeatResults($link, $electionID, $seatID, $numseats, array $winner
     }
     if(isset($voters)) {
         $vi = json_encode($voters);
-        echo $vi . "<br>";
         $sql = "INSERT INTO ElectionResults (ElectionID, SeatID, {$insertcolumns}, voters) VALUES ({$electionID}, {$seatID}, {$insertvalues}, \"{$vi}\")";
     } else {
         $sql = "INSERT INTO ElectionResults (ElectionID, SeatID, {$insertcolumns}) VALUES ({$electionID}, {$seatID}, {$insertvalues})";
@@ -976,7 +974,7 @@ function getMPIDsofPlayerAtSeat($link, $playerID, $seatID) {
     $sql = "SELECT ID FROM EmployedMPs WHERE employerID = {$playerID} AND seatID = {$seatID} ORDER BY ID";
     $mps = mysqli_query($link, $sql);
     $return = array();
-    while($mp = mydsqli_fetch_array($mps)){
+    while($mp = mysqli_fetch_array($mps)){
         array_push($return, $mp[0]);
     }
     return $return;
@@ -1088,7 +1086,7 @@ function getElectionResultsTable($link, $seatID) {
         $year = getElectionYear($link, $row['ElectionID']);
         echo "
         <div class=\"row\">
-            <div class=\"table-responsive col-md-6\">
+            <div class=\"table-responsive col-md-8\">
                 <h3>{$year}</h3>
                 <table class=\"table table-dark\">
                     <thead>
@@ -1136,5 +1134,9 @@ function getElectionResultsTable($link, $seatID) {
             </div>
         </div>";
     }
+}
+
+function getUsername($link, $ID) {
+    return mysqli_fetch_array(mysqli_query($link, "SELECT username FROM users WHERE id = {$ID}"))[0];
 }
 ?> 

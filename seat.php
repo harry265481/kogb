@@ -66,35 +66,41 @@ include 'header/header.php';
     echo "<h4>" . $sqlProvince['Country'] . "</h4>";
     ?>
     <div class="row">
-        <div class="col-sm-4 col-md-6">
+        <div class="col-md-8 col-lg-6">
             <?php $link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME); generateMap($link, false);?>
         </div>
     </div>
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-4">
             <?php
             for($i = 1; $i <= $sqlProvince['seats']; $i++) {
                 echo "<h5>Seat " . $i . ": <span style=\"color:" . getMPColor($link, $sqlProvince['seat' . $i]) . "\">■</span> " . getMPPartyName($link, $sqlProvince['seat' . $i]) . "</h5>";
             }
             ?>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <h5>Voters</h5>
             <p><?php echo $sqlProvince['voters']; ?></p>
         </div>
     </div>
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-4">
             <h5>Influences and other Notes</h5>
             <p><?php echo $sqlProvince['chiefinfluencer']; ?></p>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <h5>Approximate price per vote</h5>
             <p>£<?php echo $sqlProvince['Price']; ?></p>
         </div>
     </div>
     <div class="row">
-        <div class="table-responsive col-md-6">
+        <div class="col-md-8">
+            <h5>Franchise</h5>
+            <p><?php echo $sqlProvince['Franchise'] ?></p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="table-responsive col-md-8">
             <h4>MPs standing at the next election</h4>
             <table class="table table-dark">
                 <thead>
@@ -120,7 +126,7 @@ include 'header/header.php';
     <?php 
         if($sqlProvince['FranchiseType'] == 3) {
             echo "<div class=\"row\">";
-            echo     "<div class=\"col-md-6\">";
+            echo     "<div class=\"col-md-8\">";
             echo         "<h5>Burgages</h5>";
             echo         "<p>Count: " . $burgages . "</p>";
             echo     "</div>";

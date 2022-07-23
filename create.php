@@ -21,15 +21,15 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql = "SELECT FirstName, LastName FROM People WHERE FirstName = ? AND LastName = ?";
         if($stmt = mysqli_prepare($link, $sql)) {
             mysqli_stmt_bind_param($stmt, "ss", $param_firstname, $param_lastname);
-            $param_firstname = trim($_POST["firstname"]);
-            $param_lastname = trim($_POST["lastname"]);
+            $param_firstname = mysql_real_escape_string(trim($_POST["firstname"]));
+            $param_lastname = mysql_real_escape_string(trim($_POST["lastname"]));
             if(mysqli_stmt_execute($stmt)) {
                 mysqli_stmt_store_result($stmt);
                 if(mysqli_stmt_store_rows($stmt) == 1) {
                     $lastname_err = "This name combination is taken";
                 } else {
-                    $firstname = trim($_POST["firstname"]);
-                    $lastname = trim($_POST["lastname"]);
+                    $firstname = mysql_real_escape_string($link, trim($_POST["firstname"]));
+                    $lastname = mysql_real_escape_string($link, trim($_POST["lastname"]));
                 }
             } else {
                 echo "There was some kind of error, contact Earl of Berkeley on Discord";
@@ -48,13 +48,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql = "INSERT INTO People (FirstName, LastName, BirthYear, User, NobleTitle, Relations, Biography) VALUES (?,?,?,?,?,?,?)";
         if($stmt = mysqli_prepare($link, $sql)) {
             mysqli_stmt_bind_param($stmt, "ssiisss", $param_firstname, $param_lastname, $param_birthyear, $param_user, $param_noble, $param_relation, $param_biography);
-            $param_firstname = $firstname;
-            $param_lastname = $lastname;
+            $param_firstname = mysqli_real_scape_string($link, $firstname);
+            $param_lastname = mysqli_real_scape_string($link, $lastname);
             $param_birthyear = $birthyear;
             $param_user = $_SESSION["id"];
-            $param_noble = $_POST["noble"];
-            $param_relation = $_POST["relations"];
-            $param_biography = $_POST["bio"];
+            $param_noble = mysql_real_escape_string($link, $_POST["noble"]);
+            $param_relation = mysql_real_escape_string($link, $_POST["relations"]);
+            $param_biography = mysql_real_escape_string($link, $_POST["bio"]);
             if(mysqli_stmt_execute($stmt)) {
                 header("location: home.php");
             } else {
