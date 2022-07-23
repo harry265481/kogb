@@ -24,6 +24,11 @@
                     <a class="nav-link" href="https://discord.gg/pymcaUg7MT"><i class="bi bi-discord"></i></a>
                 </li>
             </ul>
+            <ul class="navbar-nav mb-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="sign-out.php">Sign Out</a>
+                </li>
+            </ul>
         </div>
     </nav>
     <div class="container-fluid">

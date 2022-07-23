@@ -1,7 +1,13 @@
+<?php 
+$isadmin = false;
+if($_SESSION["adminlevel"] > 0){
+    $isadmin = true;
+}
+?>
 <div class="col-auto px-0">
     <div id="sidebar" class="show collapse collapse-horizontal">
         <div id="sidebar-nav" class="list-group border-0 rounded-0 text-sm-start min-vh-100">
-            <a href="#" class="list-group-item list-group-item-dark border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar">
+            <a href="home.php" class="list-group-item list-group-item-dark border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar">
                 <i class="bi bi-house-fill"></i> <span>Home</span>
             </a>
             <a href="pol-office.php" class="list-group-item list-group-item-dark border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar">
@@ -34,6 +40,12 @@
                     </a>
                 </div>
             </div>
+            <?php 
+            if($isadmin) {
+                echo'
+                <a href="pending.php" class="list-group-item list-group-item-dark border-end-0 d-inline-block text-truncate">Pending Characters</a>';
+            }
+            ?>
         </div>
     </div>
 </div>

@@ -1,4 +1,5 @@
 <?php
+session_start();
 include 'config.php';
 include 'functions.php';
 include 'header/header.php';
@@ -78,6 +79,11 @@ include 'header/header.php';
     getElementById('tttext').setAttribute('y', '8');
     setStrokeWidth(0.3);
     ">Midlands</button><br>
+<div class="col-lg-6 col-md-4 col-sm-3">
 <?php
 $link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME); generateMap($link); 
+?>
+</div>
+<?php
+include_once "footer.php";
 ?>

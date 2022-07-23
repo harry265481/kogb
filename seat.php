@@ -1,4 +1,5 @@
 <?php
+session_start();
 $seatID = $_GET['id'];
 include 'config.php';
 include 'functions.php';
@@ -16,9 +17,15 @@ if($sqlProvince['FranchiseType'] == 3) {
     $burgages = $burgages['Count'];
 }
 
-$sqlgetPartyNames = mysqli_query($link, 'SELECT Name, Color FROM parties');
-
 $name = $sqlProvince['Name'];
+
+$hasmps = "false";
+
+$sqlget = 'SELECT * FROM EmployedMPs WHERE seatID = ' . $seatID;
+$sqlmps = mysqli_query($link, $sqlget);
+if(mysqli_num_rows($sqlmps) > 0) {
+    $hasmps = true;
+}
 
 include 'header/header.php';
 ?>
@@ -51,45 +58,66 @@ include 'header/header.php';
             background-color:#165ec9;
         }
     </style>
-        <h1 style = "margin-top: 70px"><?php echo $name ?></h1>
-        <?php 
-        if($sqlProvince['Name'] != $sqlProvince['County']) {
-            echo "<h4>" . $sqlProvince['County'] . "</h4>";
-        }
-
-        echo "<h4>" . $sqlProvince['Country'] . "</h4>";
-        ?>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="profile-img">
-                    <?php $link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME); generateMap($link, false);?>
-                </div>
-            </div>
+    <h1 style = "margin-top: 70px"><?php echo $name ?></h1>
+    <?php 
+    if($sqlProvince['Name'] != $sqlProvince['County']) {
+        echo "<h4>" . $sqlProvince['County'] . "</h4>";
+    }
+    echo "<h4>" . $sqlProvince['Country'] . "</h4>";
+    ?>
+    <div class="row">
+        <div class="col-sm-4 col-md-6">
+            <?php $link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME); generateMap($link, false);?>
         </div>
-        <div class="row">
-            <div class="col-md-6">
-                <?php
-                for($i = 1; $i <= $sqlProvince['seats']; $i++) {
-                    echo "<h5>Seat " . $i . ": <span style=\"color:" . mysql_result($sqlgetPartyNames, $sqlProvince['seat' . $i], 'Color') . "\">■</span> " . mysql_result($sqlgetPartyNames, $sqlProvince['seat' . $i], 'Name') . "</h5>";
-                }
-                ?>
-            </div>
-            <div class="col-md-6">
-                <h5>Voters</h5>
-                <p><?php echo $sqlProvince['voters']; ?></p>
-            </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <?php
+            for($i = 1; $i <= $sqlProvince['seats']; $i++) {
+                echo "<h5>Seat " . $i . ": <span style=\"color:" . getMPColor($link, $sqlProvince['seat' . $i]) . "\">■</span> " . getMPPartyName($link, $sqlProvince['seat' . $i]) . "</h5>";
+            }
+            ?>
         </div>
-        <div class="row">
-            <div class="col-md-6">
-                <h5>Influences and other Notes</h5>
-                <p><?php echo $sqlProvince['chiefinfluencer']; ?></p>
-            </div>
-            <div class="col-md-6">
-                <h5>Approximate price per vote</h5>
-                <p>£<?php echo $sqlProvince['Price']; ?></p>
-            </div>
+        <div class="col-md-3">
+            <h5>Voters</h5>
+            <p><?php echo $sqlProvince['voters']; ?></p>
         </div>
-        <?php 
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <h5>Influences and other Notes</h5>
+            <p><?php echo $sqlProvince['chiefinfluencer']; ?></p>
+        </div>
+        <div class="col-md-3">
+            <h5>Approximate price per vote</h5>
+            <p>£<?php echo $sqlProvince['Price']; ?></p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="table-responsive col-md-6">
+            <h4>MPs standing at the next election</h4>
+            <table class="table table-dark">
+                <thead>
+                    <tr>
+                    <th>ID</th>
+                    <th colspan="2">Employer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    if($hasmps) {
+                        while($mp = mysqli_fetch_array($sqlmps, MYSQLI_ASSOC)) {
+                            $employer = getMPEmployerName ($link, $mp['ID']);
+                            $color = getMPColor($link, $mp['ID']);
+                            echo "<tr><td>{$mp['ID']}</td><td width=\"15px\" style=\"background-color:{$color}\"></td><td>{$employer}</td></tr>";
+                        }
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <?php 
         if($sqlProvince['FranchiseType'] == 3) {
             echo "<div class=\"row\">";
             echo     "<div class=\"col-md-6\">";
@@ -98,5 +126,6 @@ include 'header/header.php';
             echo     "</div>";
             echo "</div>";
         }
-include_once "footer.php";
-?>
+        getElectionResultsTable($link, $seatID);
+        include_once "footer.php";
+    ?>

@@ -1,4 +1,5 @@
 <?php
+session_start();
 include 'config.php';
 $link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
 $sqlget = 'SELECT ID, Name, County, Country, Franchise, voters, seats, seat1, seat2, seat3, seat4 FROM seats ORDER BY Name asc';
@@ -45,7 +46,7 @@ include 'header/header.php';
     }
   </script>
   <div class="page-header pt-3">
-    <h2>Seats of the House of Commons</h2>
+    <h2>Seats</h2>
   </div>
   <p class="page-header"></p>
   <button type="button" class="btn btn-primary" onclick="hideColumn('county')">Show/Hide Counties</button>
@@ -99,22 +100,22 @@ while ($row = mysqli_fetch_array($sqldata, MYSQLI_ASSOC)) {
   $seat4 = "N/A";
   $seat4c = "#ccc";
   if($row['seats'] == 1) {
-    $seat1c = mysql_result($sqlgetPartyNames, $row['seat1'], 'Color');
-    $seat1 = mysql_result($sqlgetPartyNames, $row['seat1'], 'Name');
+    $seat1c = getMPColor($link, $row['seat1']);
+    $seat1 = getMPPartyName($link, $row['seat1']);
   } else if($row['seats'] == 2) {
-    $seat1c = mysql_result($sqlgetPartyNames, $row['seat1'], 'Color');
-    $seat1 = mysql_result($sqlgetPartyNames, $row['seat1'], 'Name');
-    $seat2c = mysql_result($sqlgetPartyNames, $row['seat2'], 'Color');
-    $seat2 = mysql_result($sqlgetPartyNames, $row['seat2'], 'Name');
+    $seat1c = getMPColor($link, $row['seat1']);
+    $seat1 = getMPPartyName($link, $row['seat1']);
+    $seat2c = getMPColor($link, $row['seat2']);
+    $seat2 = getMPPartyName($link, $row['seat2']);
   } else if($row['seats'] == 4) {
-    $seat1c = mysql_result($sqlgetPartyNames, $row['seat1'], 'Color');
-    $seat1 = mysql_result($sqlgetPartyNames, $row['seat1'], 'Name');
-    $seat2c = mysql_result($sqlgetPartyNames, $row['seat2'], 'Color');
-    $seat2 = mysql_result($sqlgetPartyNames, $row['seat2'], 'Name');
-    $seat3c = mysql_result($sqlgetPartyNames, $row['seat3'], 'Color');
-    $seat3 = mysql_result($sqlgetPartyNames, $row['seat3'], 'Name');
-    $seat4c = mysql_result($sqlgetPartyNames, $row['seat4'], 'Color');
-    $seat4 = mysql_result($sqlgetPartyNames, $row['seat4'], 'Name');
+    $seat1c = getMPColor($link, $row['seat1']);
+    $seat1 = getMPPartyName($link, $row['seat1']);
+    $seat2c = getMPColor($link, $row['seat2']);
+    $seat2 = getMPPartyName($link, $row['seat2']);
+    $seat3c = getMPColor($link, $row['seat3']);
+    $seat3 = getMPPartyName($link, $row['seat3']);
+    $seat4c = getMPColor($link, $row['seat4']);
+    $seat4 = getMPPartyName($link, $row['seat4']);
   }
 
     //Print it all as a row
