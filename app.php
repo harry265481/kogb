@@ -42,7 +42,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 }
-$sqldata = mysqli_fetch_array(mysqli_query($link, "SELECT * FROM People WHERE id = {$ID}"));
+$sqldata = mysqli_fetch_array(mysqli_query($link, "SELECT * FROM people WHERE id = {$ID}"));
 $FirstName = $sqldata['FirstName'];
 $LastName = $sqldata['LastName'];
 include 'header/header.php';

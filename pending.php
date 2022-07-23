@@ -11,7 +11,7 @@ if($_SESSION["adminlevel"] <= 0){
 }
 
 $link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
-$sqlget = 'SELECT ID, FirstName, LastName, BirthYear, User, NobleTitle FROM People WHERE Approved = 0';
+$sqlget = 'SELECT ID, FirstName, LastName, BirthYear, User, NobleTitle FROM people WHERE Approved = 0';
 $sqldata = mysqli_query($link, $sqlget) or die('Connection could not be established');
 
 include 'functions.php';

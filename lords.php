@@ -26,7 +26,7 @@ include 'header/header.php';
             </thead>
             <tbody>
                 <?php
-                $sql = 'SELECT FirstName, LastName, Party, NobleTitle FROM People WHERE Approved = 1 AND HoL = 1';
+                $sql = 'SELECT FirstName, LastName, Party, NobleTitle FROM people WHERE Approved = 1 AND HoL = 1';
                 $sqldata = mysqli_query($link,$sql);
                 while($lord = mysqli_fetch_array($sqldata, MYSQLI_ASSOC)) {
                     echo '<tr>';

@@ -18,7 +18,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         $firstname_err = "Enter a first name";
     }
     if(!$firstname_err == "" && !$lastname_err == "") {
-        $sql = "SELECT FirstName, LastName FROM People WHERE FirstName = ? AND LastName = ?";
+        $sql = "SELECT FirstName, LastName FROM people WHERE FirstName = ? AND LastName = ?";
         if($stmt = mysqli_prepare($link, $sql)) {
             mysqli_stmt_bind_param($stmt, "ss", $param_firstname, $param_lastname);
             $param_firstname = mysql_real_escape_string(trim($_POST["firstname"]));
@@ -45,7 +45,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if(empty($firstname_err) && empty($lastname_err) && empty($birthyear_err)) {
-        $sql = "INSERT INTO People (FirstName, LastName, BirthYear, User, NobleTitle, Relations, Biography) VALUES (?,?,?,?,?,?,?)";
+        $sql = "INSERT INTO people (FirstName, LastName, BirthYear, User, NobleTitle, Relations, Biography) VALUES (?,?,?,?,?,?,?)";
         if($stmt = mysqli_prepare($link, $sql)) {
             mysqli_stmt_bind_param($stmt, "ssiisss", $param_firstname, $param_lastname, $param_birthyear, $param_user, $param_noble, $param_relation, $param_biography);
             $param_firstname = mysqli_real_scape_string($link, $firstname);

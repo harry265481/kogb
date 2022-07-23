@@ -7,7 +7,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 include_once 'config.php';
 $link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
 
-$sqlget = "SELECT ID, purse FROM People WHERE User = " . $_SESSION["id"];
+$sqlget = "SELECT ID, purse FROM people WHERE User = " . $_SESSION["id"];
 $ID = mysqli_fetch_array(mysqli_query($link, $sqlget), MYSQLI_ASSOC);
 $money = $ID['purse'];
 $ID = $ID['ID'];
@@ -18,7 +18,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
   $sql = 'INSERT INTO EmployedMPs (employerID, seatID, purse) VALUES
                                   (' . $ID . ', ' . $_POST["seat"] .  ', ' . $money . ')';
   mysqli_query($link, $sql);
-  $sql = 'UPDATE People SET purse = purse - ' . $money . ' WHERE ID = ' . $ID;
+  $sql = 'UPDATE people SET purse = purse - ' . $money . ' WHERE ID = ' . $ID;
   mysqli_query($link, $sql);
 }
 

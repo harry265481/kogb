@@ -303,7 +303,7 @@ function generateSeating($link, $house) {
         echo    "</g>";
         echo "</svg>";
     } else if($house == 1) {
-        $sqlget = 'SELECT Party FROM People WHERE HoL = 1';
+        $sqlget = 'SELECT Party FROM people WHERE HoL = 1';
         $sqldata2 = mysqli_query($link, $sqlget);
         $members = mysqli_num_rows($sqldata2);
 
@@ -424,7 +424,7 @@ function getMPColor($link, $mpid) {
     $sql = 'SELECT employerID FROM EmployedMPs WHERE ID = ' . $mpid;
     $sqlmp = mysqli_query($link, $sql);
     $employer = mysqli_fetch_array($sqlmp, MYSQLI_ASSOC)['employerID'];
-    $sql = 'SELECT Party FROM People WHERE ID = ' . $employer;
+    $sql = 'SELECT Party FROM people WHERE ID = ' . $employer;
     $sqlparty = mysqli_query($link, $sql);
     $party = mysqli_fetch_array($sqlparty, MYSQLI_ASSOC)['Party'];
     $sql = 'SELECT Color FROM parties WHERE ID = ' . $party;
@@ -437,7 +437,7 @@ function getMPPartyName($link, $mpid) {
     $sql = 'SELECT employerID FROM EmployedMPs WHERE ID = ' . $mpid;
     $sqlmp = mysqli_query($link, $sql);
     $employer = mysqli_fetch_array($sqlmp, MYSQLI_ASSOC)['employerID'];
-    $sql = 'SELECT Party FROM People WHERE ID = ' . $employer;
+    $sql = 'SELECT Party FROM people WHERE ID = ' . $employer;
     $sqlparty = mysqli_query($link, $sql);
     $party = mysqli_fetch_array($sqlparty, MYSQLI_ASSOC)['Party'];
     $sql = 'SELECT Name FROM parties WHERE ID = ' . $party;
@@ -450,7 +450,7 @@ function getMPPartyID($link, $mpid) {
     $sql = "SELECT employerID FROM EmployedMPs WHERE ID = {$mpid}";
     $sqlmp = mysqli_query($link, $sql);
     $employer = mysqli_fetch_array($sqlmp, MYSQLI_ASSOC)['employerID'];
-    $sql = 'SELECT Party FROM People WHERE ID = ' . $employer;
+    $sql = 'SELECT Party FROM people WHERE ID = ' . $employer;
     $sqlparty = mysqli_query($link, $sql);
     $party = mysqli_fetch_array($sqlparty, MYSQLI_ASSOC)['Party'];
     return $party;
