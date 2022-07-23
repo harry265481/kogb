@@ -58,9 +58,6 @@ echo '<pre>' . print_r(get_defined_vars(), true) . '</pre>';
         :
         <span id="second"></span>
     </div>
-    <span id="ct"></span><br>
-    <span id="start"></span><br>
-    <span id="now"></span><br>
 
 <script>
 function startTime() {
@@ -74,67 +71,11 @@ function startTime() {
     var timestamp = new Date(ct);
     timestamp.setFullYear(<?php echo $year ?>);
     //Time started in 1750 so add 1750
-    var year = <?php echo $year ?>;
-    document.getElementById('start').innerHTML = year;
-    document.getElementById('now').innerHTML = timestamp;
-/*
-    //current year = start year + [(time since) / (year in ms)]
-    var y = Math.floor(year + (ct / 31557600000));
-
-    //current month = remainder of [(current time) / (4 weeks in ms)]
-    var mo = Math.floor((ct / 2419200066.234088) % 12); 
-    mo = mo + 1;
-
-    //current day = {[current month * (4 weeks in ms)] - current time} / (division to convert to hours)
-    var d = Math.floor(((mo * 2419200066.234088) - ct) / 1000 / 60 / 60 / 24); 
-    //add one to offset from month starting at 0 to 1
-    d = d + 1;
-
-    //current hour
-    //Mod of current time and length of a day in ms
-    //That is to say, ms since day start
-    var ch = ct % 86400000;
-
-    //convert ms to hours
-    ch = ch / 1000 / 60 / 60;
-    var h = Math.floor(ch);
-    if(h < 10) {
-        h = "0" + h;
-    }
-
-    //current minute
-    //Mod of current time and length of a day in ms
-    //That is to say, ms since day start
-    var cm = ct % 3600000;
-
-    //convert ms to hours
-    cm = cm / 1000 / 60;
-    var mi = Math.floor(cm);
-    if(mi < 10) {
-        mi = "0" + mi;
-    }
-
-    //current minute
-    //Mod of current time and length of a day in ms
-    //That is to say, ms since day start
-    var cs = ct % 60000;
-
-    //convert ms to hours
-    cs = cs / 1000;
-    var s = Math.floor(cs);
-    if(s < 10) {
-        s = "0" + s;
-    }
-  document.getElementById('date').innerHTML = ordinal_suffix_of(d) + " day, " + ordinal_suffix_of(mo) + " moon, " + y;
-  document.getElementById('hour').innerHTML = h;
-  document.getElementById('minute').innerHTML = mi;
-  document.getElementById('second').innerHTML = s;
-  document.getElementById('ct').innerHTML = ct;
-  document.getElementById('start').innerHTML = startDate;
-  document.getElementById('now').innerHTML = now;
-*/
-  
-  setTimeout(startTime, 1);
+    document.getElementById('date').innerHTML = ordinal_suffix_of(timestamp.getUTCDate()) + ", " + month(timestamp.getUTCMonth()) + ", " + timestamp.getUTCFullYear();
+    document.getElementById('hour').innerHTML = checkTime(timestamp.getUTCHours());
+    document.getElementById('minute').innerHTML = checkTime(timestamp.getUTCMinutes());
+    document.getElementById('second').innerHTML = checkTime(timestamp.getUTCSeconds());
+    setTimeout(startTime, 1);
 }
 
 function ordinal_suffix_of(i) {
@@ -150,6 +91,11 @@ function ordinal_suffix_of(i) {
         return i + "rd";
     }
     return i + "th";
+}
+
+function month(i) {
+    let months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    return months[i];
 }
 
 function checkTime(i) {
