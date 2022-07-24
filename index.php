@@ -154,7 +154,7 @@
                                 <h4>1688</h4>
                                 <h4 class="subheading">Glorious Revolution</h4>
                             </div>
-                            <div class="timeline-body"><p>When James ascended the throne as James II, he attempted to rule with the support of the Tory party. Through them, he attempted to restore Catholicism as the offical faith. The was widely upopular and even caused a rebellion in Monmouth.<br><br>In late 1688, the elite nobility of England invited his daughter, Mary and her husband, William of Orange, to rule England, Scotland and Ireland. James II went into exile in France and from then on, supporters of him and his progeny were known as Jacobites.<br><br>Following the revolution, the English Bill of Rights was passed and established that monarchs could not govern without the consent of Parliament.</p></div>
+                            <div class="timeline-body"><p>When James ascended the throne as James II, he attempted to rule with the support of the Tory party. Through them, he attempted to restore Catholicism as the offical faith. This was widely unpopular and even caused a rebellion in Monmouth.<br><br>In late 1688, the elite nobility of England invited his daughter, Mary and her husband, William of Orange, to rule England, Scotland and Ireland. James II went into exile in France and from then on, supporters of him and his progeny were known as Jacobites.<br><br>Following the revolution, the English Bill of Rights was passed and established that monarchs could not govern without the consent of Parliament.</p></div>
                         </div>
                     </li>
                     <li>
