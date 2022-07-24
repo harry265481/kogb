@@ -52,9 +52,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             $param_lastname = mysqli_real_escape_string($link, $lastname);
             $param_birthyear = $birthyear;
             $param_user = $_SESSION["id"];
-            $param_noble = mysql_real_escape_string($link, $_POST["noble"]);
-            $param_relation = mysql_real_escape_string($link, $_POST["relations"]);
-            $param_biography = mysql_real_escape_string($link, $_POST["bio"]);
+            $param_noble = mysqli_real_escape_string($link, $_POST["noble"]);
+            $param_relation = mysqli_real_escape_string($link, $_POST["relations"]);
+            $param_biography = mysqli_real_escape_string($link, $_POST["bio"]);
             if(mysqli_stmt_execute($stmt)) {
                 header("location: home.php");
             } else {
