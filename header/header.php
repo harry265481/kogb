@@ -1,3 +1,15 @@
+<?php
+include_once "config.php";
+$link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
+include_once "functions.php";
+$data = getTimeStuff($link);
+$year = $data[0];
+$time = $data[1];
+$irlweek = 604800 * 1000;
+$irlyear = 31557600 * 1000;
+$icyear = $irlweek * $data[2];
+$a = $irlyear / $icyear;
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +26,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
 
 </head>
-<body class="bg-dark text-light">
+<body class="bg-dark text-light" onload="startTime()">
     <nav class="navbar navbar-expand navbar-light list-group-item-dark">
         <div class="container-fluid">
             <a class="navbar-brand"><img src="https://upload.wikimedia.org/wikipedia/commons/2/28/Coat_of_Arms_of_Great_Britain_%281714-1801%29.svg" height="40px"></a>
@@ -23,6 +35,45 @@
                 <li class="nav-item">
                     <a class="nav-link" href="https://discord.gg/pymcaUg7MT"><i class="bi bi-discord"></i></a>
                 </li>
+                <li class="nav-item"> 
+                    <a id="date" class="nav-link"></a>
+                </li>
+                <script>
+                    function startTime() {
+                        var startDate = new Date('<?php echo $time ?> GMT-0400');
+                        var year = startDate.getFullYear();
+                        var now = new Date();
+
+                        //RL ms since time start x a for dilation
+                        var ct = (now - startDate) * <?php echo $a ?>;
+                        //ct = Math.floor(ct);
+                        var timestamp = new Date(ct);
+                        timestamp.setFullYear(<?php echo $year ?>);
+                        //Time started in 1750 so add 1750
+                        document.getElementById('date').innerHTML = ordinal_suffix_of(timestamp.getUTCDate()) + ", " + month(timestamp.getUTCMonth()) + ", " + timestamp.getUTCFullYear();
+                        setTimeout(startTime, 1000);
+                    }
+
+                    function ordinal_suffix_of(i) {
+                        var j = i % 10,
+                            k = i % 100;
+                        if (j == 1 && k != 11) {
+                            return i + "st";
+                        }
+                        if (j == 2 && k != 12) {
+                            return i + "nd";
+                        }
+                        if (j == 3 && k != 13) {
+                            return i + "rd";
+                        }
+                        return i + "th";
+                    }
+
+                    function month(i) {
+                        let months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                        return months[i];
+                    }
+                </script>
             </ul>
             <ul class="navbar-nav mb-0">
                 <li class="nav-item">

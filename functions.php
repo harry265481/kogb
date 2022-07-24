@@ -95,7 +95,7 @@ function mysql_result($result, $number, $field=0) {
 }
 
 function generateMap($link, $isInteractive = true) {
-    $sqlget = 'SELECT ID, name, shape, seats, seat1, seat2, seat3, seat4 FROM seats';
+    $sqlget = "SELECT ID, name, shape, seats, seat1, seat2, seat3, seat4 FROM seats WHERE Parliament = 0";
     $sqldata2 = mysqli_query($link, $sqlget);
     echo "<svg width=\"100%\" id=\"map\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"225 0 605 1208.8\">";
     generatePatterns($link);
@@ -186,12 +186,104 @@ function generateMap($link, $isInteractive = true) {
     echo "</svg>";
 }
 
+function generateIrishMap($link, $isInteractive = true) {
+    $sqlget = 'SELECT ID, name, shape, seats, seat1, seat2, seat3, seat4 FROM seats WHERE Parliament = 1';
+    $sqldata2 = mysqli_query($link, $sqlget);
+    echo "<svg width=\"100%\" id=\"map\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-200 0 360 450\">";
+    generatePatterns($link);
+    $sqlpartyget = 'SELECT Color from parties';
+    $colors = mysqli_query($link, $sqlpartyget);
+    while($province = mysqli_fetch_array($sqldata2, MYSQLI_ASSOC)) {
+        $color = "grey";
+        if($province['seats'] == 1) {
+            if(getMPPartyID($link, $province['seat1']) != NULL) {
+                $color = getMPColor($link, $province['seat1']);
+            }
+        }
+        if($province['seats'] == 2) {
+            if(getMPPartyID($link, $province['seat1']) != NULL) {
+                if(getMPPartyID($link, $province['seat1']) == getMPPartyID($link, $province['seat2'])) {
+                    $color = getMPColor($link, $province['seat1']);
+                }
+                if(getMPPartyID($link, $province['seat1']) != getMPPartyID($link, $province['seat2'])) {
+                    if(((getMPPartyID($link, $province['seat1']) == 1) && (getMPPartyID($link, $province['seat2']) == 2)) || ((getMPPartyID($link, $province['seat1']) == 2) && (getMPPartyID($link, $province['seat2']) == 1))) {
+                        $color="url(#ToriesWhigs)";
+                    }
+                    if(((getMPPartyID($link, $province['seat1']) == 0) && (getMPPartyID($link, $province['seat2']) == 2)) || ((getMPPartyID($link, $province['seat1']) == 2) && (getMPPartyID($link, $province['seat2']) == 0))) {
+                        $color="url(#ToriesSpeaker)";
+                    }
+                    if(((getMPPartyID($link, $province['seat1']) == 0) && (getMPPartyID($link, $province['seat2']) == 1)) || ((getMPPartyID($link, $province['seat1']) == 1) && (getMPPartyID($link, $province['seat2']) == 0))) {
+                        $color="url(#WhigsSpeaker)";
+                    }
+                }
+            }
+        }
+        if($isInteractive == true) {
+            echo "<a href=seat.php?id=" . $province['ID'] . ">";
+        }
+        echo "<path data-tooltip-text=\"" . $province['name'] . "\" class=\"tooltip-trigger\" id=" . $province['ID'] . " " . $province['shape'] . "stroke=\"black\" style=\"fill:" . $color . "\" stroke-width=\"0.5\">";
+        echo "</path>";
+        if($isInteractive == true) {
+        echo "</a>";
+        }
+    }
+    if($isInteractive == true) {
+    echo "
+        <g id=\"tooltip\" visibility=\"hidden\">
+            <rect id=\"ttrect\" width=\"80\" height=\"30\" fill=\"white\" rx=\"2\" ry=\"2\"/>
+            <text id=\"tttext\" x=\"2\" y=\"26\" font-size=\"25px\">Tooltip</text>
+        </g>
+    ";
+    }
+
+    echo "
+        <script type=\"text/javascript\"><![CDATA[
+            (function() {
+                var tooltip = document.getElementById('tooltip');
+                var svg = document.getElementById('map');
+                var triggers = document.getElementsByClassName('tooltip-trigger');
+                var tooltipText = tooltip.getElementsByTagName('text')[0];
+                var tooltiprect = tooltip.getElementsByTagName('rect')[0];
+                for (var i = 0; i < triggers.length; i++) {
+                    triggers[i].addEventListener('mousemove', showTooltip);
+                    triggers[i].addEventListener('mouseout', hideTooltip);
+                }
+
+                function setStrokeWidth(width) {
+                    var list = document.getElementsByTagName('path');
+                    for(let item of list) {
+                        item.setAttribute('stroke-width', width);
+                    }
+                }
+
+                function showTooltip(evt) {
+                    var CTM = svg.getScreenCTM();
+                    var x = (evt.clientX - CTM.e + 6) / CTM.a;
+                    var y = (evt.clientY - CTM.f + 20) / CTM.d;
+                    tooltip.setAttributeNS(null, \"transform\", \"translate(\" + x + \" \" + y + \")\");
+                    tooltip.setAttributeNS(null, \"visibility\", \"visible\");
+                    
+                    tooltipText.firstChild.data = evt.target.getAttributeNS(null, \"data-tooltip-text\");
+                    var bbox = tooltipText.getBBox();
+                    var twidth = bbox.width;
+                    tooltiprect.setAttribute('width', twidth + 6);
+                }
+
+                function hideTooltip() {
+                    tooltip.setAttributeNS(null, \"visibility\", \"hidden\");
+                }
+            })();
+        ]]>
+        </script>";
+    echo "</svg>";
+}
+
 //House
 //0 = Commons
 //1 = Lords
-function generateSeating($link, $house) {
+function generateSeating($link, $house, $parliament) {
     if($house == 0) {
-        $sqlget = 'SELECT ID, name, shape, seats, seat1, seat2, seat3, seat4 FROM seats';
+        $sqlget = "SELECT ID, name, shape, seats, seat1, seat2, seat3, seat4 FROM seats WHERE Parliament = {$parliament}";
         $sqldata2 = mysqli_query($link, $sqlget);
         $seats = 0;
         $sqlgetp = 'SELECT * FROM parties';

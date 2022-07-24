@@ -9,8 +9,6 @@ $irlweek = 604800 * 1000;
 $irlyear = 31557600 * 1000;
 $icyear = $irlweek * $data[2];
 $a = $irlyear / $icyear;
-
-echo '<pre>' . print_r(get_defined_vars(), true) . '</pre>';
 ?>
 <!DOCTYPE html>
 <html>
@@ -51,13 +49,6 @@ echo '<pre>' . print_r(get_defined_vars(), true) . '</pre>';
 
 <body onload="startTime()">
     <div id="date"></div>
-    <div id="time">
-        <span id="hour"></span>
-        :
-        <span id="minute"></span>
-        :
-        <span id="second"></span>
-    </div>
 
 <script>
 function startTime() {
@@ -72,10 +63,7 @@ function startTime() {
     timestamp.setFullYear(<?php echo $year ?>);
     //Time started in 1750 so add 1750
     document.getElementById('date').innerHTML = ordinal_suffix_of(timestamp.getUTCDate()) + ", " + month(timestamp.getUTCMonth()) + ", " + timestamp.getUTCFullYear();
-    document.getElementById('hour').innerHTML = checkTime(timestamp.getUTCHours());
-    document.getElementById('minute').innerHTML = checkTime(timestamp.getUTCMinutes());
-    document.getElementById('second').innerHTML = checkTime(timestamp.getUTCSeconds());
-    setTimeout(startTime, 1);
+    setTimeout(startTime, 1000);
 }
 
 function ordinal_suffix_of(i) {
@@ -96,11 +84,6 @@ function ordinal_suffix_of(i) {
 function month(i) {
     let months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     return months[i];
-}
-
-function checkTime(i) {
-  if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
-  return i;
 }
 </script>
 

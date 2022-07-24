@@ -67,7 +67,14 @@ include 'header/header.php';
     ?>
     <div class="row">
         <div class="col-md-8 col-lg-6">
-            <?php $link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME); generateMap($link, false);?>
+            <?php 
+                $link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME); 
+                if($sqlProvince['Parliament'] == 0) {
+                    generateMap($link, false);
+                } else {
+                    generateIrishMap($link, false);
+                }
+            ?>
         </div>
     </div>
     <div class="row">

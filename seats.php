@@ -2,7 +2,7 @@
 session_start();
 include 'config.php';
 $link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
-$sqlget = 'SELECT ID, Name, County, Country, Franchise, voters, seats, seat1, seat2, seat3, seat4 FROM seats ORDER BY Name asc';
+$sqlget = 'SELECT ID, Name, County, Country, Franchise, voters, seats, seat1, seat2, seat3, seat4 FROM seats ORDER BY Name asc WHERE Parliament = 0';
 $sqldata = mysqli_query($link, $sqlget) or die('Connection could not be established');
 
 include 'functions.php';
