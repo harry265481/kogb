@@ -2,8 +2,6 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <meta name="description" content="">
-        <meta name="author" content="">
         <meta property="og:type" content="website">
         <meta property="og:title" content="Kingdom of Great Britain RP" />
         <meta property="og:description" content="Come play in 1750s Great Britain!" />
@@ -238,7 +236,6 @@
                             <img class="mx-auto rounded-circle" src="assets/img/team/1.png" alt="...">
                             <h4>Thomas Lawford</h4>
                             <p>Admin</p>
-                            <a class="btn btn-dark btn-social mx-2" href="https://discord.gg/pymcaUg7MT" aria-label="Discord"><i class="fa-brands fa-discord"></i></a>
                         </div>
                     </div>
                     <div class="col-lg-4">
@@ -246,7 +243,6 @@
                             <img class="mx-auto rounded-circle" src="assets/img/team/2.png" alt="...">
                             <h4>Earl of Berkeley</h4>
                             <p>Lead Developer and Owner</p>
-                            <a class="btn btn-dark btn-social mx-2" href="https://discord.gg/pymcaUg7MT" aria-label="Discord"><i class="fa-brands fa-discord"></i></a>
                         </div>
                     </div>
                     <div class="col-lg-4">
@@ -254,7 +250,6 @@
                             <img class="mx-auto rounded-circle" src="assets/img/team/" alt="...">
                             <h4>Meouni</h4>
                             <p>Admin</p>
-                            <a class="btn btn-dark btn-social mx-2" href="https://discord.gg/pymcaUg7MT" aria-label="Discord"><i class="fa-brands fa-discord"></i></a>
                         </div>
                     </div>
                 </div>
