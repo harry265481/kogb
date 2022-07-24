@@ -21,15 +21,15 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql = "SELECT FirstName, LastName FROM people WHERE FirstName = ? AND LastName = ?";
         if($stmt = mysqli_prepare($link, $sql)) {
             mysqli_stmt_bind_param($stmt, "ss", $param_firstname, $param_lastname);
-            $param_firstname = mysql_real_escape_string(trim($_POST["firstname"]));
-            $param_lastname = mysql_real_escape_string(trim($_POST["lastname"]));
+            $param_firstname = mysqli_real_escape_string(trim($_POST["firstname"]));
+            $param_lastname = mysqli_real_escape_string(trim($_POST["lastname"]));
             if(mysqli_stmt_execute($stmt)) {
                 mysqli_stmt_store_result($stmt);
                 if(mysqli_stmt_store_rows($stmt) == 1) {
                     $lastname_err = "This name combination is taken";
                 } else {
-                    $firstname = mysql_real_escape_string($link, trim($_POST["firstname"]));
-                    $lastname = mysql_real_escape_string($link, trim($_POST["lastname"]));
+                    $firstname = mysqli_real_escape_string($link, trim($_POST["firstname"]));
+                    $lastname = mysqli_real_escape_string($link, trim($_POST["lastname"]));
                 }
             } else {
                 echo "There was some kind of error, contact Earl of Berkeley on Discord";
