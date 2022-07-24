@@ -134,7 +134,7 @@
                                 <h4>1660</h4>
                                 <h4 class="subheading">Restoration</h4>
                             </div>
-                            <div class="timeline-body"><p>The monarchy is restored under Charles II but only after certain concessions were made and more power was given to parliament. During this time, the Church of England become the official state religion, despite reservations from the monarchy.</p></div>
+                            <div class="timeline-body"><p>The monarchy is restored under Charles II but only after certain concessions were made and more power was given to parliament. During this time, the Church of England becomes the official state religion, despite reservations from the monarchy.</p></div>
                         </div>
                     </li>
                     <li>
