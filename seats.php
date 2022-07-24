@@ -1,5 +1,9 @@
 <?php
 session_start();
+if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
+    header("location: sign-in.php");
+    exit;
+}
 include 'config.php';
 $link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
 $sqlget = 'SELECT ID, Name, County, Country, Franchise, voters, seats, seat1, seat2, seat3, seat4 FROM seats ORDER BY Name asc WHERE Parliament = 0';
