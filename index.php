@@ -18,18 +18,6 @@
         <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css">
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="css/styles.css" rel="stylesheet">
-        <style>
-            .d-none {
-                display: none;
-            }
-            .invalid-feedback {
-                display: none;
-            }
-            .btn.disabled {
-                pointer-events: none;
-                opacity: 0.65;
-            }
-        </style>
     </head>
     <body id="page-top">
         <!-- Navigation-->
