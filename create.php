@@ -48,8 +48,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql = "INSERT INTO people (FirstName, LastName, BirthYear, User, NobleTitle, Relations, Biography) VALUES (?,?,?,?,?,?,?)";
         if($stmt = mysqli_prepare($link, $sql)) {
             mysqli_stmt_bind_param($stmt, "ssiisss", $param_firstname, $param_lastname, $param_birthyear, $param_user, $param_noble, $param_relation, $param_biography);
-            $param_firstname = mysqli_real_scape_string($link, $firstname);
-            $param_lastname = mysqli_real_scape_string($link, $lastname);
+            $param_firstname = mysqli_real_escape_string($link, $firstname);
+            $param_lastname = mysqli_real_escape_string($link, $lastname);
             $param_birthyear = $birthyear;
             $param_user = $_SESSION["id"];
             $param_noble = mysql_real_escape_string($link, $_POST["noble"]);
