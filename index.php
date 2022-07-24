@@ -5,7 +5,7 @@
         <meta property="og:type" content="website">
         <meta property="og:title" content="Kingdom of Great Britain RP" />
         <meta property="og:description" content="Come play in 1750s Great Britain!" />
-        <meta property="og:url" content="kogb.org" />
+        <meta property="og:url" content="https://kogb.org" />
         <meta property="og:image" content="https://kogb.org/assets/img/header-bg.jpg" />
         <title>Kingdom of Great Britain</title>
         <!-- Favicon-->
