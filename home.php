@@ -7,7 +7,7 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 include_once 'config.php';
 
 $link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
-$sqlget = "SELECT * FROM people WHERE User = " . $_SESSION["id"];
+$sqlget = "SELECT ID FROM people WHERE User = " . $_SESSION['id'];
 $sqldata = mysqli_query($link, $sqlget);
 $sqlrows = mysqli_num_rows($sqldata);
 if($sqlrows == 0) {
@@ -42,7 +42,7 @@ include_once 'header/header.php';
   <h2>Home</h2>
   <?php echo $character_err; ?>
 </div>
-<div class="col-6">
+<div class="col-12">
     <?php 
         echo "<h3>Name: " . $firstname . " " . $lastname . "</h3>";
         echo "<h4>DOB: " . $birthyear . "</h4>";

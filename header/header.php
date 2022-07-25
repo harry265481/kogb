@@ -19,7 +19,6 @@ $a = $irlyear / $icyear;
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
 
     <title>KoGB</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
@@ -28,59 +27,41 @@ $a = $irlyear / $icyear;
 
 </head>
 <body class="bg-dark text-light" onload="startTime()">
-    <nav class="navbar navbar-expand navbar-light list-group-item-dark">
+    <nav class="navbar navbar-expand-sm navbar-light list-group-item-dark">
         <div class="container-fluid">
-            <a class="navbar-brand"><img src="https://upload.wikimedia.org/wikipedia/commons/2/28/Coat_of_Arms_of_Great_Britain_%281714-1801%29.svg" height="40px"></a>
-            <a class="navbar-brand">KoGB</a>
-            <ul class="navbar-nav me-auto mb-0">
+            <a class="navbar-brand">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/2/28/Coat_of_Arms_of_Great_Britain_%281714-1801%29.svg" width="30px" class="d-inline-block align-text-top">
+                KoGB
+            </a>
+            <ul class="navbar-nav me-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="https://discord.gg/pymcaUg7MT"><i class="bi bi-discord"></i></a>
                 </li>
                 <li class="nav-item"> 
                     <a id="date" class="nav-link"></a>
                 </li>
-                <script>
-                    function startTime() {
-                        var startDate = new Date('<?php echo $time ?> GMT-0400');
-                        var year = startDate.getFullYear();
-                        var now = new Date();
-
-                        //RL ms since time start x a for dilation
-                        var ct = (now - startDate) * <?php echo $a ?>;
-                        //ct = Math.floor(ct);
-                        var timestamp = new Date(ct);
-                        timestamp.setFullYear(<?php echo $year ?>);
-                        //Time started in 1750 so add 1750
-                        document.getElementById('date').innerHTML = ordinal_suffix_of(timestamp.getUTCDate()) + ", " + month(timestamp.getUTCMonth()) + ", " + timestamp.getUTCFullYear();
-                        setTimeout(startTime, 1000);
-                    }
-
-                    function ordinal_suffix_of(i) {
-                        var j = i % 10,
-                            k = i % 100;
-                        if (j == 1 && k != 11) {
-                            return i + "st";
-                        }
-                        if (j == 2 && k != 12) {
-                            return i + "nd";
-                        }
-                        if (j == 3 && k != 13) {
-                            return i + "rd";
-                        }
-                        return i + "th";
-                    }
-
-                    function month(i) {
-                        let months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-                        return months[i];
-                    }
-                </script>
             </ul>
-            <ul class="navbar-nav mb-0">
-                <li class="nav-item">
-                    <a class="nav-link" href="sign-out.php">Sign Out</a>
-                </li>
-            </ul>
+            <div class="d-flex align-items-center">
+                <ul class="navbar-nav mb-0">
+                    <?php 
+                    if(isset($_SESSION['isDisc']) && $_SESSION['isDisc'] == true) {
+                        $discid = $_SESSION['discid'];
+                        $discname = $_SESSION['username'];
+                        $discavatar = $_SESSION['avatar'];
+                        $avatar = "https://cdn.discordapp.com/avatars/{$discid}/{$discavatar}.png";
+                        echo "
+                        <li class=\"nav-item\">
+                            {$discname}
+                            <img class=\"rounded-circle\" width=40px src=\"{$avatar}\">
+                        </li>
+                        ";
+                    } 
+                    ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="sign-out.php">Sign Out</a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
     <div class="container-fluid">

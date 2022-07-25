@@ -75,12 +75,18 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://kit.fontawesome.com/fb41f04bab.js" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="sign-in.css">
     </head>
     <body class="text-center">
        <main class="form-signin">
+            <img class="mb-4" src="https://upload.wikimedia.org/wikipedia/commons/2/28/Coat_of_Arms_of_Great_Britain_%281714-1801%29.svg" width="200px">
+            <form action="init-oauth.php" method="post">
+                <button class="w-100 btn btn-lg btn-primary">Login with <i class="fa-brands fa-discord"></i></button>
+            </form>
+            <hr class="border">
+            <h3 class="h3 mb-3 fw-normal" style="color: white;">OR</h3>
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-                <img class="mb-4" src="https://upload.wikimedia.org/wikipedia/commons/2/28/Coat_of_Arms_of_Great_Britain_%281714-1801%29.svg" width="200px">
                 <h1 class="h3 mb-3 fw-normal" style="color: white;">Register</h1>
                 <div class="form-floating">
                     <input type="text" name="username" id="floatingInput" class="form-control <?php echo (!empty($username_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $username; ?>">
