@@ -26,6 +26,8 @@ if(curl_errno($ch)) {
     exit;
 }
 $result = json_decode($result, true);
+echo $result;
+exit;
 $access_token = $result['access_token'];
 
 $discord_users_url = "https://discordapp.com/api/users/@me";
