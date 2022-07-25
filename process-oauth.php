@@ -20,9 +20,6 @@ curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $payload_string);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-
 $result = curl_exec($ch);
 $result = json_decode($result, true);
 $access_token = $result['access_token'];
@@ -36,9 +33,6 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
 curl_setopt($ch, CURLOPT_URL, $discord_users_url);
 curl_setopt($ch, CURLOPT_POST, false);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 
 $result = curl_exec($ch);
 $result = json_decode($result, true);
@@ -77,7 +71,7 @@ if($res) {
     $_SESSION["discid"] = $result['id'];
     $_SESSION['avatar'] = $result['avatar'];
     $_SESSION['adminlevel'] = $res[0]['adminlevel'];
-    //header('Location: home.php');
+    header('Location: home.php');
 }
 
 ?>
