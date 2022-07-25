@@ -26,6 +26,17 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             echo $sql . "<br>";
             echo("Error description: " . mysqli_error($link) . " <br>");
         } else {
+            $User = mysqli_fetch_array(mysqli_query($link, "SELECT User FROM people WHERE id = {$ID}"))[0];
+            $disc = mysqli_query($link, "SELECT discordID FROM users WHERE id = {$User}");
+            if($disc) {
+                include_once "senddm.php";
+                $discordid = mysqli_fetch_array($disc, MYSQLI_ASSOC)['discordID'];
+                $newDM = MakeRequest('users/@me/channels', array("recipient_id" => $discordid));
+                if(isset($newDM["id"])) {
+                    $newMessage = MakeRequest("channels/".$newDM["id"]."/messages", array("content" => "Your character application was accepted."));
+                }
+            }
+            
             header("location: pending.php");
             exit;
         }
