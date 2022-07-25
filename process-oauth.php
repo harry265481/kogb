@@ -21,13 +21,7 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, $payload_string);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
 $result = curl_exec($ch);
-if(curl_errno($ch)) {
-    echo curl_error($ch);
-    exit;
-}
 $result = json_decode($result, true);
-print_r($result);
-exit;
 $access_token = $result['access_token'];
 
 $discord_users_url = "https://discordapp.com/api/users/@me";
@@ -41,10 +35,6 @@ curl_setopt($ch, CURLOPT_POST, false);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
 $result = curl_exec($ch);
-if(curl_errno($ch)) {
-    echo curl_error($ch);
-    exit;
-}
 $result = json_decode($result, true);
 include_once "config.php";
 $link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
