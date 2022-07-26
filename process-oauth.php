@@ -61,6 +61,7 @@ if($res) {
     $discordDiscriminator = $result['discriminator'];
     $sql = "INSERT INTO users (discordUser, discordID, discordAvatar, discordDiscriminator) VALUES (\"{$discordUser}\", \"{$discordID}\", \"{$discordAvatar}\", \"{$discordDiscriminator}\")";
     mysqli_query($link, $sql);
+    $res = mysqli_fetch_all(mysqli_query($link, "SELECT id, adminlevel FROM users WHERE discordID = \"{$dUser}\""), MYSQLI_ASSOC);
 
     //now that they do exist, log them in
     session_start();
