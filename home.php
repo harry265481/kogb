@@ -12,10 +12,11 @@ $sqldata = mysqli_query($link, $sqlget);
 $sqlrows = mysqli_num_rows($sqldata);
 if($sqlrows == 0) {
     header('Location: create.php');
+    exit;
 }
 
 $character_err = "";
-$firstname = $lastname = $birthyear = $title = "";
+$firstname = $lastname = $birthyear = $title = $purse = "";
 
 $sqlget = "SELECT approved FROM people WHERE User = " . $_SESSION["id"];
 $sqldata = mysqli_query($link, $sqlget);
