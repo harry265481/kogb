@@ -1229,7 +1229,12 @@ function getElectionResultsTable($link, $seatID) {
 }
 
 function getUsername($link, $ID) {
-    return mysqli_fetch_array(mysqli_query($link, "SELECT username FROM users WHERE id = {$ID}"))[0];
+    $data = mysqli_fetch_array(mysqli_query($link, "SELECT username, discordUser FROM users WHERE id = {$ID}"));
+    if(isset($data[1]) && $data[1] != null) {
+        return $data[1];
+    } else {
+        return $data[0];
+    }
 }
 
 function getTimeStuff($link) {
