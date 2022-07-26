@@ -11,7 +11,7 @@ include 'header/header.php';
 </div>
 <div class="row">
     <div class="col-sm-6 col-md-8">
-    <?php generateSeating($link, 1);  ?>
+    <?php generateSeating($link, 1, 0);  ?>
     </div>
 </div>
 <div class="row">

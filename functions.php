@@ -1236,4 +1236,9 @@ function getTimeStuff($link) {
     $sql = mysqli_fetch_array(mysqli_query($link, "SELECT * FROM `years` ORDER BY Year DESC LIMIT 1"));
     return $sql;
 }
+
+function getName($link, $ID) {
+    $data = mysqli_fetch_array(mysqli_query($link, "SELECT FirstName, LastName FROM people WHERE ID = {$ID}"));
+    return $data[0] . " " . $data[1];
+}
 ?> 

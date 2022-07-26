@@ -43,7 +43,7 @@
             <div class="container">
                 <div class="masthead-subheading">Welcome to</div>
                 <div class="masthead-heading text-uppercase">Kingdom of Great Britain</div>
-                <div class="masthead-subheading">A politics-focused Role Playing Game set in the 1750s Great Britain and Ireland</div>
+                <div class="masthead-subheading">A politics-focused Role Playing Game set in 1750s Great Britain and Ireland</div>
                 <a class="btn btn-primary btn-xl text-uppercase" href="register.php">Create your character</a>
             </div>
         </header>
