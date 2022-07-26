@@ -16,8 +16,8 @@ if($_SESSION["adminlevel"] > 0){
             <a href="#" class="list-group-item list-group-item-dark border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar">
                 <i class="fa-solid fa-award"></i> <span>Privy Council</span>
             </a>
-            <a href="cabinet.php" class="list-group-item list-group-item-dark border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar">
-                <i class="fa-solid fa-users"></i> <span>Cabinet</span>
+            <a href="government.php" class="list-group-item list-group-item-dark border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar">
+                <i class="fa-solid fa-users"></i> <span>Government</span>
             </a>
             <a href="#" class="list-group-item list-group-item-dark border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar" data-bs-target="#lords-dropdown" data-bs-toggle="collapse">
             <i class="fa-solid fa-landmark"></i> <span>House of Lords</span>
