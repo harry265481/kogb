@@ -24,6 +24,7 @@ $a = $irlyear / $icyear;
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
         <script src="https://kit.fontawesome.com/fb41f04bab.js" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+        <link rel="stylesheet" href="css/style-main.css">
 
     </head>
     <body class="bg-dark text-light" onload="startTime()">
@@ -43,6 +44,8 @@ $a = $irlyear / $icyear;
                 </ul>
                 <div class="d-flex align-items-center">
                     <ul class="navbar-nav mb-0">
+                        <li class="nav-item">
+                            <a class="nav-link dopdown-toggle nav-user me-0" data-bs-toggle="dropdown" href="#" role="button">
                         <?php 
                         if(isset($_SESSION['isDisc']) && $_SESSION['isDisc'] == true) {
                             $discid = $_SESSION['discid'];
@@ -50,15 +53,18 @@ $a = $irlyear / $icyear;
                             $discavatar = $_SESSION['avatar'];
                             $avatar = "https://cdn.discordapp.com/avatars/{$discid}/{$discavatar}.png";
                             echo "
-                            <li class=\"nav-item\">
-                                {$discname}
-                                <img class=\"rounded-circle\" width=40px src=\"{$avatar}\">
-                            </li>
+                            {$discname}
+                            <img class=\"rounded-circle\" width=40px src=\"{$avatar}\">
                             ";
-                        } 
+                        } else {
+                            echo "{$_SESSION['username']}";
+                        }
                         ?>
-                        <li class="nav-item">
-                            <a class="nav-link" href="sign-out.php">Sign Out</a>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated topbar-dropdown-menu profile-dropdown-menu profile-dropdown">
+                                <a href="account.php" class="dropdown-item"><i class="fa-solid fa-circle-user"></i> My Account</a>
+                                <a href="sign-out.php" class="dropdown-item"><i class="fa-solid fa-right-from-bracket"></i> Sign out</a>
+                            </div>
                         </li>
                     </ul>
                 </div>
