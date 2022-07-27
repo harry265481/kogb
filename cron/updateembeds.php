@@ -144,6 +144,7 @@ $json = '{
   //check if a message already exists, if so, delete it
   $prev = mysqli_query($link, "SELECT messageID FROM embeds WHERE channel = \"{$newMessage['channel_id']}\"");
   if($prev) {
+    $prev = mysqli_fetch_array($prev);
     print_r($delete = MakeDeleteRequest("channels/{$newMessage['channel_id']}/messages/{$prev['messageID']}"));
   }
   //add the message to the database
