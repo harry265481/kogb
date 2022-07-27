@@ -30,6 +30,38 @@ function MakeRequest($endpoint, $data) {
     curl_close($ch);
     return json_decode($request, true);
 }
+
+function MakeDeleteRequest($endpoint) {
+    # Set endpoint
+    $url = "https://discord.com/api/".$endpoint."";
+
+    # Encode data, as Discord requires you to send json data.
+    $data = json_encode($data);
+
+    # Initialize new curl request
+    $ch = curl_init();
+
+    # Set headers, data etc..
+    $botToken = constant('BOT_TOKEN');
+    curl_setopt_array($ch, array(
+        CURLOPT_URL            => $url, 
+        CURLOPT_HTTPHEADER     => array(
+            'Authorization: Bot ' . $botToken,
+            "Content-Type: application/json",
+            "Accept: application/json"
+        ),
+        CURLOPT_RETURNTRANSFER => 1,
+        CURLOPT_FOLLOWLOCATION => 1,
+        CURLOPT_VERBOSE        => 1,
+        CURLOPT_SSL_VERIFYPEER => 0,
+        CURLOPT_CUSTOMREQUEST => "DELETE";
+    ));
+
+    $request = curl_exec($ch);
+    curl_close($ch);
+    return json_decode($request, true);
+}
+
 include_once "../config.php";
 //House of Lords
 $sql = "SELECT User, Party FROM people WHERE HoL = 1";
@@ -109,4 +141,11 @@ $json = '{
   echo "<pre>";
   print_r($newMessage = MakeRequest("channels/996621415207944212/messages", $json));
   echo "</pre>";
+  //check if a message already exists, if so, delete it
+  $prev = mysqli_query($link, "SELECT messageID FROM embeds WHERE channel = \"{$newMessage['channel_id']}\"");
+  if($prev) {
+    print_r($delete = MakeDeleteRequest("channels/{$newMessage['channel_id']}/messages/{$prev['messageID']}"));
+  }
+  //add the message to the database
+  mysqli_query($link, "INSERT INTO `embeds` (`messageID`, `channel`) VALUES (\"{$newMessage['id']}\", \"{$newMessage['channel_id']}\"");
   ?>
