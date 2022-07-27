@@ -148,5 +148,5 @@ $json = '{
     print_r($delete = MakeDeleteRequest("channels/{$newMessage['channel_id']}/messages/{$prev['messageID']}"));
   }
   //add the message to the database
-  mysqli_query($link, "INSERT INTO `embeds` (`messageID`, `channel`) VALUES (\"{$newMessage['id']}\", \"{$newMessage['channel_id']}\"");
+  mysqli_query($link, "INSERT INTO `embeds` (`messageID`, `channel`) VALUES (\"{$newMessage['id']}\", \"{$newMessage['channel_id']}\")");
   ?>
