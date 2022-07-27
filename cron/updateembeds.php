@@ -54,7 +54,7 @@ function MakeDeleteRequest($endpoint) {
         CURLOPT_FOLLOWLOCATION => 1,
         CURLOPT_VERBOSE        => 1,
         CURLOPT_SSL_VERIFYPEER => 0,
-        CURLOPT_CUSTOMREQUEST => "DELETE";
+        CURLOPT_CUSTOMREQUEST => "DELETE"
     ));
 
     $request = curl_exec($ch);
