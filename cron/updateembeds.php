@@ -105,13 +105,6 @@ $json = '{
       ]
     }]
   }';
-
-  echo "<pre>";
-  print_r($json);
-  echo "</pre>";
   $json = json_decode($json);
-  echo "<pre>";
-  print_r($json);
-  echo "</pre>";
-  print_r($newMessage = MakeRequest("channels/996621415207944212/messages", $json));
+  //print_r($newMessage = MakeRequest("channels/996621415207944212/messages", $json));
   ?>
