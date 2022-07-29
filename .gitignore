@@ -3,3 +3,4 @@ discordpayload.php
 init-oauth.php
 init-oauth-existing.php
 cron/token.php
+wiki/
