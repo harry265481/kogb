@@ -1,6 +1,6 @@
 <?php 
 
-include_once "province.php";
+include_once __DIR__ . "/province.php";
 
 class Country {
     protected $ID = 0;

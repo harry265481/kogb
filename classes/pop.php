@@ -1,6 +1,6 @@
 <?php
 
-include_once "resource.php";
+include_once __DIR__ . "/resource.php";
 include_once(__DIR__ . '/../defines.php');
 
 class Pop {

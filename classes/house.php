@@ -1,5 +1,5 @@
 <?php
-include_once "person.php";
+include_once __DIR__ . "/person.php";
 class House {
     public $ID;
     public $members = array();

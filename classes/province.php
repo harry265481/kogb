@@ -1,6 +1,6 @@
 <?php
-include_once "pop.php";
-include_once "terrain.php";
+include_once __DIR__ . "/pop.php";
+include_once __DIR__ . "/terrain.php";
 include_once __DIR__ . "/../defines.php";
 
 class Province {

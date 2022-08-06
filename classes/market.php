@@ -1,5 +1,5 @@
 <?php
-include_once "resource.php";
+include_once __DIR__ . "/resource.php";
 include_once(__DIR__ . '/../functions.php');
 
 class Market implements ArrayAccess {

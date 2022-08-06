@@ -1,7 +1,7 @@
 <?php 
 
-include_once "country.php";
-include_once "market.php";
+include_once __DIR__ . "/country.php";
+include_once __DIR__ . "/market.php";
 
 class Nation {
     private $ID = 0;
