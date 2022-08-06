@@ -1,12 +1,6 @@
 <?php
-session_start();
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
-    header("location: sign-in.php");
-    exit;
-}
+include 'header/header.php';
 $provinceID = $_GET['id'];
-include 'config.php';
-include 'functions.php';
 $link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
 $sqlget = 'SELECT ID, name, Terrain FROM provinces WHERE ID = ' . $provinceID;
 $sqldata = mysqli_query($link, $sqlget);
@@ -28,8 +22,6 @@ $population = 4 * $tworkers;
 $needs = mysqli_fetch_all(mysqli_query($link, "SELECT * FROM poptypes"));
 $maxworker = 10000;
 $tn = getTerrainName($link, $sqlProvince['Terrain']);
-
-include 'header/header.php';
 ?>
     <script>
         window.onload = function() {
