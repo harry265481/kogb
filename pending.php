@@ -1,21 +1,12 @@
 <?php
-session_start();
-include 'config.php';
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
-    header("location: sign-in.php");
-    exit;
-}
 if($_SESSION["adminlevel"] <= 0){
-    header("location: home.php");
-    exit;
+  header("location: home.php");
+  exit;
 }
 
 $link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
 $sqlget = 'SELECT ID, FirstName, LastName, BirthYear, User, NobleTitle FROM people WHERE Approved = 0';
 $sqldata = mysqli_query($link, $sqlget) or die('Connection could not be established');
-
-include 'functions.php';
-include 'header/header.php';
 ?>
   <div class="page-header pt-3">
     <h2>Pending</h2>

@@ -1,6 +1,10 @@
 <?php
 define('DEBUG', FALSE);
 
+include_once "defines.php";
+include_once "classes/nation.php";
+include_once "classes/resource.php";
+
 function print_r2($val){
     echo '<pre>';
     print_r($val);
@@ -1246,4 +1250,858 @@ function getName($link, $ID) {
     $data = mysqli_fetch_array(mysqli_query($link, "SELECT FirstName, LastName FROM people WHERE ID = {$ID}"));
     return $data[0] . " " . $data[1];
 }
+
+/*********************/
+/* Economy functions */
+/*********************/
+function generateEconMap($link, $isInteractive = true) {
+    $sqlget = "SELECT ID, name, shape, Terrain FROM provinces ORDER BY ID asc";
+    $sqldata2 = mysqli_query($link, $sqlget);
+    echo "<svg width=\"100%\" id=\"map\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"170 0 720 1250\">";
+    while($province = mysqli_fetch_array($sqldata2, MYSQLI_ASSOC)) {
+        $color = "#95CBA4";
+        $color = getProvinceTerrainColor($link, $province['Terrain']);
+        if($isInteractive == true) {
+            echo "<a href=province.php?id=" . $province['ID'] . ">";
+        }
+        echo "<path data-tooltip-text=\"" . $province['name'] . "\" class=\"tooltip-trigger\" id=" . $province['ID'] . " " . $province['shape'] . "stroke=\"black\" style=\"fill:" . $color . "\" stroke-width=\"0.5\">";
+        echo "</path>";
+        if($isInteractive == true) {
+        echo "</a>";
+        }
+    }
+    if($isInteractive == true) {
+    echo "
+        <g id=\"tooltip\" visibility=\"hidden\">
+            <rect id=\"ttrect\" width=\"80\" height=\"30\" fill=\"white\" rx=\"2\" ry=\"2\"/>
+            <text id=\"tttext\" x=\"2\" y=\"26\" font-size=\"25px\">Tooltip</text>
+        </g>
+    ";
+    }
+
+    echo "
+    <script type=\"text/javascript\"><![CDATA[
+        (function() {
+            var tooltip = document.getElementById('tooltip');
+            var svg = document.getElementById('map');
+            var triggers = document.getElementsByClassName('tooltip-trigger');
+            var tooltipText = tooltip.getElementsByTagName('text')[0];
+            var tooltiprect = tooltip.getElementsByTagName('rect')[0];
+            for (var i = 0; i < triggers.length; i++) {
+                triggers[i].addEventListener('mousemove', showTooltip);
+                triggers[i].addEventListener('mouseout', hideTooltip);
+            }
+
+            function setStrokeWidth(width) {
+                var list = document.getElementsByTagName('path');
+                for(let item of list) {
+                    item.setAttribute('stroke-width', width);
+                }
+            }
+
+            function showTooltip(evt) {
+                var CTM = svg.getScreenCTM();
+                var x = (evt.clientX - CTM.e + 6) / CTM.a;
+                var y = (evt.clientY - CTM.f + 20) / CTM.d;
+                tooltip.setAttributeNS(null, \"transform\", \"translate(\" + x + \" \" + y + \")\");
+                tooltip.setAttributeNS(null, \"visibility\", \"visible\");
+                
+                tooltipText.firstChild.data = evt.target.getAttributeNS(null, \"data-tooltip-text\");
+                var bbox = tooltipText.getBBox();
+                var twidth = bbox.width;
+                tooltiprect.setAttribute('width', twidth + 6);
+            }
+
+            function hideTooltip() {
+                tooltip.setAttributeNS(null, \"visibility\", \"hidden\");
+            }
+        })();
+    ]]>
+    </script>";
+    echo "</svg>";
+}
+
+/********************/
+/* Province Getters */
+/********************/
+function getProvinceTerrainColor($link, $terrain) {
+    return mysqli_fetch_array(mysqli_query($link, "SELECT color FROM terraintypes WHERE ID = {$terrain}"))[0];
+}
+
+function getProvinceBaseSize($link, $province, $rtsm) {
+    $lpopsd = mysqli_fetch_all(mysqli_query($link, "SELECT size FROM pops WHERE province = {$province} AND type = 1"));
+    $tworkers = 0;
+    foreach($lpopsd as $lpop) {
+        $tworkers += $lpop['0'];
+    }
+    $bsize = floor(1.5 * ceil($tworkers / (MAX_WORKERS * $rtsm)));
+    return $bsize;
+}
+
+/********************/
+/* Resource Getters */
+/********************/
+function getResourceName($link, $id) {
+    return mysqli_fetch_array(mysqli_query($link, "SELECT name FROM resources WHERE ID = {$id}"))[0];
+}
+
+function getResourceOutput($link, $id) {
+    return mysqli_fetch_array(mysqli_query($link, "SELECT outputAmount FROM resources WHERE ID = {$id}"))[0];
+}
+
+function getResourceType($link, $id) {
+    return mysqli_fetch_array(mysqli_query($link, "SELECT `type` FROM resources WHERE ID = {$id}"))[0];
+}
+
+function getResourcePrice($link, $id) {
+    return mysqli_fetch_array(mysqli_query($link, "SELECT currentPrice FROM resources WHERE ID = {$id}"))[0];
+}
+
+function getResourcebasePrice($link, $id) {
+    return mysqli_fetch_array(mysqli_query($link, "SELECT basePrice FROM resources WHERE ID = {$id}"))[0];
+}
+
+function getResourceTerrainSizeModifiers($link, $id) {
+    return mysqli_fetch_array(mysqli_query($link, "SELECT `farmSize`, `mineSize`, `timberSize`, `tropicalSize` FROM terraintypes WHERE ID = {$id}"), MYSQLI_NUM);
+}
+
+//Alias of above
+function getRTSMs($link, $id) {
+    return getResourceTerrainSizeModifiers($link, $id);
+}
+
+function getResourceTerrainEfficiencyModifiers($link, $id) {
+    return mysqli_fetch_array(mysqli_query($link, "SELECT `farmEfficiency`, `mineEfficiency`, `timberEfficiency`, `tropicalEfficiency` FROM terraintypes WHERE ID = {$id}"), MYSQLI_NUM);
+}
+
+//Alias of above
+function getRTEMs($link, $id) {
+    return getResourceTerrainEfficiencyModifiers($link, $id);
+}
+
+function getResourceCategory($link, $resource) {
+    return mysqli_fetch_array(mysqli_query($link, "SELECT category FROM resources WHERE ID = {$resource}"), MYSQLI_NUM)[0];
+}
+
+/********************/
+/* Resource Setters */
+/********************/
+function setResourcePrice($link, $price, $id) {
+    mysqli_query($link, "UPDATE resourves SET currentPrice = {$price} WHERE ID = {$id}");
+}
+
+function adjustPrices($link, $leftovers) {
+    foreach($leftovers as $key => $l) {
+        $bp = getResourcebasePrice($link, $key);
+        $cp = getResourcePrice($link, $key);
+        if($l < 0) {
+            if($cp < ($bp * PRICE_MAXIMUM_MULTIPLIER)) {
+                $np = $cp + BASE_PRICE_CHANGE;
+                setResourcePrice($link, $np, $key);
+
+                //Check if the price has some how gone over the maximum, set it back to the maximum
+            } else if($cp > ($bp * PRICE_MAXIMUM_MULTIPLIER)) {
+                setResourcePrice($link, $bp * PRICE_MAXIMUM_MULTIPLIER, $key);
+            }
+        } else if($l > 0) {
+            if($cp > ($bp * PRICE_MINIMUM_MULITPLIER)) {
+                $np = $cp - BASE_PRICE_CHANGE;
+                setResourcePrice($link, $np, $key);
+
+                //Check if the price has some how gone over the maximum, set it back to the maximum
+            } else if($cp < ($bp * PRICE_MINIMUM_MULITPLIER)) {
+                setResourcePrice($link, $bp * PRICE_MINIMUM_MULITPLIER, $key);
+            }
+        }
+    }
+}
+
+/********************/
+/* Terrain Getters */
+/********************/
+function getTerrainName($link, $id) {
+    return mysqli_fetch_array(mysqli_query($link, "SELECT name FROM terraintypes WHERE ID = {$id}"), MYSQLI_BOTH)[0];
+}
+
+function getTerrainModifiers($link, $id) {
+    return mysqli_fetch_array(mysqli_query($link, "SELECT * FROM terraintypes WHERE ID = {$id}"), MYSQLI_BOTH);
+}
+
+/***************/
+/* Pop Getters */
+/***************/
+function getPopNeeds($link, $popID, $ntype = 0) {
+    $pop = mysqli_fetch_array(mysqli_query($link, "SELECT type, size FROM pops WHERE ID = {$popID}"));
+    $totalneeds = array();
+    $popneeds = mysqli_fetch_array(mysqli_query($link, "SELECT * FROM poptypes WHERE ID = {$pop['type']}"), MYSQLI_BOTH);
+    $rsc = mysqli_fetch_all(mysqli_query($link, "SELECT ID FROM resources"));
+    foreach($rsc as $r) {
+        $totalneeds[$r[0]] = 0;
+    }
+    $life = json_decode($popneeds[2]);
+    $everyday = json_decode($popneeds[3]);
+    $luxury = json_decode($popneeds[4]);
+    if($ntype == 0 || $ntype == 1) {
+        foreach($life as $l) {
+            $y = 1 * $l[1] * BASE_POP_DEMAND * $pop['size'] / NEEDS_POP;
+            $totalneeds[$l[0]] += $y;
+        }
+    }
+
+    if($ntype == 0 || $ntype == 2 || $ntype == 4) {
+        foreach($everyday as $e) {
+            $y = 1 * $e[1] * BASE_POP_DEMAND * $pop['size'] / NEEDS_POP;
+            $totalneeds[$e[0]] += $y;
+        }
+    }
+
+    if($ntype == 0 || $ntype == 3 || $ntype == 4) {
+        foreach($luxury as $l) {
+            $y = 1 * $l[1] * BASE_POP_DEMAND * $pop['size'] / NEEDS_POP;
+            $totalneeds[$l[0]] += $y;
+        }
+    }
+    return $totalneeds;
+}
+
+function getPopIcon($type) {
+    switch ($type) {
+        case 1:
+            return '<i class="fa-solid fa-person-digging"></i>';
+            break;
+        case 2:
+            return '<i class="fa-solid fa-person-military-rifle"></i>';
+            break;
+        case 3:
+            return '<i class="fa-solid fa-hammer"></i>';
+            break;
+        case 4:
+            return '<i class="fa-solid fa-pen-ruler"></i>';
+            break;
+        case 5:
+            return '<i class="fa-solid fa-file-pen"></i>';
+            break;
+        case 6:
+            return '<i class="fa-solid fa-graduation-cap"></i>';
+            break;
+        case 7:
+            return '<i class="fa-solid fa-user-tie"></i>';
+            break;
+        case 8:
+            return '<i class="fa-solid fa-medal"></i>';
+            break;
+        case 9:
+            return '<i class="fa-solid fa-person-walking-with-cane"></i>';
+            break;
+    }
+}
+
+function getPopName($link, $type) {
+    return mysqli_fetch_array(mysqli_query($link, "SELECT name FROM poptypes WHERE ID = {$type}"))[0];
+}
+
+function getPOPOutput($link, $pop) {
+    //$workers = $popdata['size'];
+
+    //$terrain = mysqli_fetch_array(mysqli_query($link, "SELECT Terrain FROM provinces WHERE ID = {$popdata['province']}"))[0];
+
+    $rtsms = getRTSMs($link, $terrain);
+    $rtems = getRTEMs($link, $terrain);
+
+    //Output Amount
+    $oa = getResourceOutput($link, $popdata['type']);
+
+    //Resource Type
+    $rt = getResourceType($link, $popdata['type']);
+
+    //Resource Terrain Size Modifier
+    //rt = column of size mod depending on type - 1 because arrays start at 0
+    $rtsm = $rtsms[$rt - 1];
+
+    //Resource Terrain Efficiency Modifier
+    //rt = column of eff mod depending on type - 1 because arrays start at 0
+    $rtem = $rtems[$rt - 1];
+
+    //Province Size
+    $bsize = getProvinceBaseSize($link, $popdata['province'], $rtsm);
+
+    //Base Production = (Province Size) * Terrain Modifiers * (Output Amount)
+    $bp = $bsize * $rtsm * $oa;
+    $tp = ($workers / (MAX_WORKERS * $bsize));
+    $oe = 1 + ($bcrats / $workers) + $rtem;
+    $output = $bp * $tp * $oe;
+    return $output;
+}
+
+function getPOPSavings($link, $pop) {
+    return mysqli_fetch_array(mysqli_query($link, "SELECT money FROM pops WHERE ID = {$pop}"))[0];
+}
+
+/***************/
+/* Pop Setters */
+/***************/
+function payPOP($link, $amount, $popID) {
+    mysqli_query($link, "UPDATE pops SET `money` = money + {$amount} WHERE ID = {$popID}");
+}
+
+/**********************/
+/* Production Getters */
+/**********************/
+
+function getProvResourceOutput($link, $id, $type, $workers, $bcrats, $terrain) {
+    $rtsms = getRTSMs($link, $terrain);
+    $rtems = getRTEMs($link, $terrain);
+    //Output Amount
+    $oa = getResourceOutput($link, $type);
+
+    //Resource Type
+    $rt = getResourceType($link, $type);
+
+    //Resource Terrain Size Modifier
+    //rt = column of size mod depending on type - 1 because arrays start at 0
+    $rtsm = $rtsms[$rt - 1];
+
+    //Resource Terrain Efficiency Modifier
+    //rt = column of eff mod depending on type - 1 because arrays start at 0
+    $rtem = $rtems[$rt - 1];
+
+    //Province Size = [[total laborers in province / (maxWorker * terrain modifier for that resource)] rounded up * 1.5] rounded down
+    //$bsize = floor(1.5 * ceil($tworkers / (MAX_WORKERS * $rtsm)));
+    $bsize = getProvinceBaseSize($link, $id, $rtsm);
+
+    //Base Production = (Province Size) * Terrain Modifiers * (Output Amount)
+    $bp = $bsize * $rtsm * $oa;
+    $tp = ($workers / (MAX_WORKERS * $bsize));
+    $oe = 1 + ($bcrats / $workers) + $rtem;
+    $output = $bp * $tp * $oe;
+    return $output;
+}
+
+function getCountryResourceOutput($link, $country) {
+    $totaloutput = array();
+    $rsc = mysqli_fetch_all(mysqli_query($link, "SELECT ID FROM resources"));
+    foreach($rsc as $r) {
+        $totaloutput[$r[0]] = 0;
+    }
+    $provinces = mysqli_fetch_all(mysqli_query($link, "SELECT * FROM provinces WHERE Country = {$country}"), MYSQLI_ASSOC);
+    foreach($provinces as $province) {
+        $terrain = $province['Terrain'];
+        $rtsms = getRTSMs($link, $terrain);
+        $rtems = getRTEMs($link, $terrain);
+        $pops = mysqli_fetch_all(mysqli_query($link, "SELECT type, size, production FROM pops WHERE province = {$province['ID']}"), MYSQLI_ASSOC);
+        $bcrats = 0;
+        $tworkers = 0;
+
+        //Get bureaucrats
+        foreach($pops as $p) {
+            $tworkers += $p['size'];
+            if($p['type'] == 5) {
+                $bcrats += $p['size'];
+            }
+        }
+
+        //Now determine how much they make
+        foreach($pops as $pop) {
+            if($pop['production'] != null) {
+                if(getResourceCategory($link, $pop['production']) == 1) {
+                    $oa = getResourceOutput($link, $pop['production']);
+                    $rt = getResourceType($link, $pop['production']);
+                    $rtsm = $rtsms[$rt - 1];
+                    $rtem = $rtems[$rt - 1];
+                    $bsize = getProvinceBaseSize($link, $province['ID'], $rtsm);
+                    $bp = $bsize * $rtsm * $oa;
+                    $tp = ($pop['size'] / (MAX_WORKERS * $bsize));
+                    $oe = 1 + ($bcrats / $pop['size']) + $rtem;
+                    $output = $bp * $tp * $oe;
+                    $totaloutput[$pop['production']] += $output;
+                }
+            }
+        }
+    }
+    return $totaloutput;
+}
+
+function getNationResourceOutput($link, $nationID) {
+    $population = 0;
+    $totaloutput = array();
+    $rsc = mysqli_fetch_all(mysqli_query($link, "SELECT ID FROM resources"));
+    foreach($rsc as $r) {
+        $totaloutput[$r[0]] = 0;
+    }
+    $countries = mysqli_fetch_all(mysqli_query($link, "SELECT ID, name FROM countries WHERE nationID = {$nationID}"));
+    foreach($countries as $country) {
+        $provinces = mysqli_fetch_all(mysqli_query($link, "SELECT * FROM provinces WHERE Country={$country[0]}"), MYSQLI_ASSOC);
+        foreach($provinces as $province) {
+            $terrain = $province['Terrain'];
+            $rtsms = getRTSMs($link, $terrain);
+            $rtems = getRTEMs($link, $terrain);
+            $pops = mysqli_fetch_all(mysqli_query($link, "SELECT type, size, production FROM pops WHERE province = {$province['ID']}"), MYSQLI_ASSOC);
+            $bcrats = 0;
+            $tworkers = 0;
+
+            //Get bureaucrats
+            foreach($pops as $p) {
+                $tworkers += $p['size'];
+                if($p['type'] == 5) {
+                    $bcrats += $p['size'];
+                }
+            }
+
+            //Now determine how much they make
+            foreach($pops as $pop) {
+                $population += $pop['size'];
+                if($pop['production'] != null) {
+                    if(getResourceCategory($link, $pop['production']) == 1) {
+                        $oa = getResourceOutput($link, $pop['production']);
+                        $rt = getResourceType($link, $pop['production']);
+                        $rtsm = $rtsms[$rt - 1];
+                        $rtem = $rtems[$rt - 1];
+                        $bsize = getProvinceBaseSize($link, $province['ID'], $rtsm);
+                        $bp = $bsize * $rtsm * $oa;
+                        $tp = ($pop['size'] / (MAX_WORKERS * $bsize));
+                        $oe = 1 + ($bcrats / $pop['size']) + $rtem;
+                        $output = $bp * $tp * $oe;
+                        $totaloutput[$pop['production']] += $output;
+                    }
+                }
+            }
+        }
+    }
+    return $totaloutput;
+}
+
+function displayCountryProduction($link, $country) {
+    echo "<div class=\"row\">";
+    echo "<div class=\"col-md-6 border border-white\">";
+    $output = getCountryResourceOutput($link, $country);
+    $num = 0;
+    foreach($output as $o) {
+        if($o > 0) {
+            $num++;
+        }
+    }
+    $half = $num  / 2;
+    $i = 1;
+    $broken = false;
+    foreach($output as $n => $o) {
+        if($o > 0) {
+            $name = getResourceName($link, $n);
+            echo "<img width=\"20px\" src=\"assets/icons/{$name}.svg\"/> " . round($o, 2) . " {$name} <br>\n";
+            $i++;
+        }
+        if($i > $half && $broken == false) {
+            echo "</div>";
+            echo '<div class="col-md-6 border border-white">';
+            $broken = true;
+        }
+    }
+    echo "</div>";
+    echo "</div>";
+}
+
+/*****************/
+/* Needs Getters */
+/*****************/
+function getCountryNeeds($link, $country) {
+    $totalneeds = array();
+    $popneeds = mysqli_fetch_all(mysqli_query($link, "SELECT * FROM poptypes "));
+    $rsc = mysqli_fetch_all(mysqli_query($link, "SELECT ID FROM resources"));
+    foreach($rsc as $r) {
+        $totalneeds[$r[0]] = 0;
+    }
+    $provinces = mysqli_fetch_all(mysqli_query($link, "SELECT * FROM provinces WHERE Country = {$country}"), MYSQLI_ASSOC);
+    foreach($provinces as $province) {
+        $pops = mysqli_fetch_all(mysqli_query($link, "SELECT type, size, production FROM pops WHERE province = {$province['ID']}"), MYSQLI_ASSOC);
+        foreach($pops as $pop) {
+            $pn = $popneeds[$pop['type'] - 1];
+            //foreach($pn as $n) {
+                $life = json_decode($pn[2]);
+                $everyday = json_decode($pn[3]);
+                $luxury = json_decode($pn[4]);
+                foreach($life as $l) {
+                    $y = 1 * $l[1] * BASE_POP_DEMAND * $pop['size'] / NEEDS_POP;
+                    $totalneeds[$l[0]] += $y;
+                }
+                
+                foreach($everyday as $e) {
+                    $y = 1 * $e[1] * BASE_POP_DEMAND * $pop['size'] / NEEDS_POP;
+                    $totalneeds[$e[0]] += $y;
+                }
+                
+                foreach($luxury as $l) {
+                    $y = 1 * $l[1] * BASE_POP_DEMAND * $pop['size'] / NEEDS_POP;
+                    $totalneeds[$l[0]] += $y;
+                }
+            //}
+        }
+    }
+    return $totalneeds;
+}
+
+function getNationNeeds($link, $nationID, $nType = 0) {
+    $totalneeds = array();
+    $popneeds = mysqli_fetch_all(mysqli_query($link, "SELECT * FROM poptypes "));
+    $rsc = mysqli_fetch_all(mysqli_query($link, "SELECT ID FROM resources"));
+    foreach($rsc as $r) {
+        $totalneeds[$r[0]] = 0;
+    }
+    
+    $countries = mysqli_fetch_all(mysqli_query($link, "SELECT ID, name FROM countries WHERE nationID = {$nationID}"));
+    foreach($countries as $country) {
+        $provinces = mysqli_fetch_all(mysqli_query($link, "SELECT * FROM provinces WHERE Country={$country[0]}"), MYSQLI_ASSOC);
+        foreach($provinces as $province) {
+            $pops = mysqli_fetch_all(mysqli_query($link, "SELECT type, size, production FROM pops WHERE province = {$province['ID']}"), MYSQLI_ASSOC);
+            foreach($pops as $pop) {
+                $pn = $popneeds[$pop['type'] - 1];
+                $life = json_decode($pn[2]);
+                $everyday = json_decode($pn[3]);
+                $luxury = json_decode($pn[4]);
+                if($nType == 0 || $nType == 1) {
+                    foreach($life as $l) {
+                        $y = 1 * $l[1] * BASE_POP_DEMAND * $pop['size'] / NEEDS_POP;
+                        $totalneeds[$l[0]] += $y;
+                    }
+                }
+                
+                if($nType == 0 || $nType == 2 || $nType == 4) {
+                    foreach($everyday as $e) {
+                        $y = 1 * $e[1] * BASE_POP_DEMAND * $pop['size'] / NEEDS_POP;
+                        $totalneeds[$e[0]] += $y;
+                    }
+                }
+                if($nType == 0 || $nType == 3 || $nType == 4) {
+                    foreach($luxury as $l) {
+                        $y = 1 * $l[1] * BASE_POP_DEMAND * $pop['size'] / NEEDS_POP;
+                        $totalneeds[$l[0]] += $y;
+                    }
+                }
+            }
+        }
+    }
+    return $totalneeds;
+}
+
+function displayCountryNeeds($link, $country) {
+    echo "<div class=\"row\">\n";
+    echo "<div class=\"col-md-6 border border-white\">\n";
+    $needs = getCountryNeeds($link, $country);
+    $num = 0;
+    foreach($needs as $n) {
+        if($n > 0) {
+            $num++;
+        }
+    }
+    $half = $num  / 2;
+    $i = 1;
+    $broken = false;
+    foreach($needs as $n => $o) {
+        if($o > 0) {
+            $name = getResourceName($link, $n);
+            echo "<img width=\"20px\" src=\"assets/icons/{$name}.svg\"/> " . round($o, 2) . " {$name} <br>\n";
+            $i++;
+        }
+        if($i > $half && $broken == false) {
+            echo "</div>";
+            echo '<div class="col-md-6 border border-white">';
+            $broken = true;
+        }
+    }
+    echo "</div>";
+    echo "</div>";
+}
+
+/*************/
+/* Day Cycle */
+/*************/
+
+//Simulate 1 day
+function runDay($link) {
+    $globalMarket = new Market($link);
+    $nations = mysqli_fetch_all(mysqli_query($link, "SELECT ID, name FROM nations"));
+    $aNations = array();
+    foreach($nations as $nation) {
+        $oNation = new Nation($link, $nation[0]);
+        $aNations[$oNation->getID()] = $oNation;
+    }
+
+    //RGO Gather Raw
+    performResourceGathering($link, $aNations);
+
+    echo "Processing artisans <br>\n";
+    processArtisanProduction($link, $aNations);
+
+    //Artisans produce stuff
+    /*
+    foreach($aNations as $nation) {
+        print_r2($nation->getmarket());
+    }
+    */
+
+    //Feed needs from common market
+    feedNeeds($link, $aNations);
+    echo "Feeding needs<br>\n";
+    foreach($aNations as $nation) {
+        print_r2($nation->getmarket());
+    }
+
+    determineArtisanChange($link, $aNations);
+    /*
+    //Export excess
+    foreach($aNations as $nation) {
+        $nation->exportExcessLifeNeeds($globalMarket);
+    }
+    
+    */
+    
+
+    
+    //Import additional life needs if available
+    //TODO implement import tarriffs
+    //importLifeNeeds($aNations, $globalMarket);
+
+    //Adjust prices
+    //adjustPrices($link, $leftovers);
+
+    //produce manufactured items
+    //'feed' everyday and luxury items
+    //decideArtisanOutput($link);
+}
+
+//Meant to be run by runDay
+function performResourceGathering($link, $aNations) {
+    foreach($aNations as $nation) {
+        $aCountries = $nation->getCountries();
+        foreach($aCountries as $country) {
+            $aProvinces = $country->getProvinces();
+            foreach($aProvinces as $province) {
+                $aPops = $province->getPopsOfType(1);
+                foreach($aPops as $pop) {
+                    $output = $pop->getPopRGOOutput($link);
+                    $RGOIncome = $output * Resource::getResourcePrice($link, $pop->getProduction());
+                    $oi = 0;
+                    if($province->hasOwners()) {
+                        $oi = $RGOIncome * 2 * ($province->getNOwners() / $province->getNWorkers());
+                        $owners = $province->getOwners();
+                        foreach($owners as $owner) {
+                            if($owner[2] == $pop->getProduction())
+                            $income = $oi * $owner[1];
+                            if($income > 0) {
+                                //payPlayer($link, $income, $owner[0]);
+                            }
+                        }
+                    }
+                    $popIncome = $RGOIncome - $oi;
+                    $nation->addToMarket($pop->getProduction(), $output);
+                    //$pop->payPOP($link, $popIncome);
+                }
+            }
+        }
+    }
+}
+
+//Attempt to feed the people from the common market
+function feedNeeds($link, $aNations) {
+    foreach($aNations as $nation) {
+        $aCountries = $nation->getCountries();
+        foreach($aCountries as $country) {
+            $aProvinces = $country->getProvinces();
+            foreach($aProvinces as $province) {
+                $aPops = $province->getPops();
+                foreach($aPops as $pop) {
+                    $lifeneeds = $pop->getLifeNeeds();
+                    foreach($lifeneeds as $idResource => $amountResource) {
+                        if($amountResource > 0) {
+                            $price = Resource::getResourcePrice($link, $idResource);
+                            $balance = $pop->getMoney();
+                            $avail = $nation->marketRequest($idResource, $amountResource);
+                            if($avail) {
+                                $cost = $avail * $price;
+                                $pop->payPop($link, 0 - $cost);
+                                $pop->feedLifeNeed(intval($idResource), $avail);
+                            }
+                        }
+                    }
+                    $everydayneeds = $pop->getEverydayNeeds();
+                    foreach($everydayneeds as $idResource => $amountResource) {
+                        if($amountResource > 0) {
+                            $price = Resource::getResourcePrice($link, $idResource);
+                            $balance = $pop->getMoney();
+                            $avail = $nation->marketRequest($idResource, $amountResource);
+                            if($avail) {
+                                $cost = $avail * $price;
+                                $pop->payPop($link, 0 - $cost);
+                                $pop->feedEverydayNeed(intval($idResource), $avail);
+                            }
+                        }
+                    }
+                    $luxuryneeds = $pop->getLuxuryNeeds();
+                    foreach($luxuryneeds as $idResource => $amountResource) {
+                        if($amountResource > 0) {
+                            $price = Resource::getResourcePrice($link, $idResource);
+                            $balance = $pop->getMoney();
+                            $avail = $nation->marketRequest($idResource, $amountResource);
+                            if($avail) {
+                                $cost = $avail * $price;
+                                $pop->payPop($link, 0 - $cost);
+                                $pop->feedLuxuryNeed(intval($idResource), $avail);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+function importLifeNeeds($aNations, &$globalMarket) {
+    foreach($aNations as $nation) {
+        $aCountries = $nation->getCountries();
+        foreach($aCountries as $country) {
+            $aProvinces = $country->getProvinces();
+            foreach($aProvinces as $province) {
+                $aPops = $province->getPopsOfType(1);
+                foreach($aPops as $pop) {
+                    $lifeneeds = $pop->getLifeNeeds();
+                    foreach($lifeneeds as $idResource => $amountResource) {
+                        if($amountResource > 0) {
+                            $price = Resource::getResourcePrice($link, $idResource);
+                            $balance = $pop->getMoney();
+                            $avail = $nation->marketRequest($idResource, $amountResource);
+                            if($avail) {
+                                $cost = $avail * $price;
+                                $pop->payPop($link, 0 - $cost);
+                                $pop->feedLifeNeed($idResource, $avail);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+function processArtisanProduction($link, $aNations) {
+    foreach($aNations as $nation) {
+        $aCountries = $nation->getCountries();
+        foreach($aCountries as $country) {
+            $aProvinces = $country->getProvinces();
+            foreach($aProvinces as $province) {
+                $aPops = $province->getPopsOfType(4);
+                foreach($aPops as $pop) {
+                    $prod = $pop->getProduction();
+                    if($prod != null) {
+                        $recipe = Resource::getResourceRecipe($link, $prod);
+                        $inventory = array();
+                        $totalprice = 0;
+                        $width = $pop->getSize() / ARTISAN_WIDTH;
+                        foreach($recipe as $i => $a) {
+                            $price = Resource::getResourcebasePrice($link, $i);
+                            $totalprice = $price * $a;
+                        }
+                        //Work out how many they can make given their money and pop size
+                        $bal = $pop->getMoney();
+                        $factor = 1;
+                        $factor = ($bal / $totalprice) * $width;
+                        if($factor > $width) {
+                            $factor = $width;
+                        }
+                        $avail = $nation->marketRecipeRequest($recipe, $factor);
+                        $finalprice = 0;
+                        foreach($avail as $i => $a) {
+                            $finalprice += $a * Resource::getResourcebasePrice($link, $i);
+                        }
+                        $pop->payPop($link, 0 - $finalprice);
+                        if (count($avail) > 0) {
+                            $g = array_key_first($avail);
+                            $finalfactor = $avail[$g] / $recipe[$g];
+
+                            $bp = Resource::getResourceOutput($link, $prod);
+                            $actualOutput = $finalfactor * $bp * ($pop->getSize() / 10000);
+
+                            $p = Resource::getResourcePrice($link, $prod);
+                            $profit = $actualOutput * $p;
+                            $pop->payPop($link, $profit);
+                        }
+                    } else {
+                        echo "Pop makes nothing<br>\n";
+                    }
+                }
+            }
+        }
+    }
+}
+
+function determineArtisanChange($link, $aNations) {
+    foreach($aNations as $nation) {
+        $aCountries = $nation->getCountries();
+        foreach($aCountries as $country) {
+            $aProvinces = $country->getProvinces();
+            foreach($aProvinces as $province) {
+                $aPops = $province->getPopsOfType(4);
+                foreach($aPops as $pop) {
+                    $popmarket = &$nation->getMarket();
+                    $currentR = $pop->getProduction();
+                    $needsChange = false;
+                    $foundApplicableChange = false;
+                    //Is there a 'negative' supply of their current production?
+                    if($popmarket[$currentR] < 0) {
+                        $needsChange = true;
+                        //If yes, determine the cause
+                        //That is, find the ingredient that is lacking
+                        
+                        //Current Recipe
+                        $recipe = Resource::getResourceRecipe($link, $currentR);
+
+                        //Determine the most 'in demand'
+                        $demandofrecipe = array();
+                        foreach($recipe as $i => $a) {
+                            if($popmarket[$currentR] < 0) {
+                                $demandofrecipe[$i] = $popmarket[$i];
+                            }
+                        }
+                        asort($demandofrecipe);
+                        $percentage = 0.15;
+                        if($pop->getMoney() == 0) {
+                            $percentage = 0.2;
+                        } else {
+                            $percentage = 0.1;
+                        }
+                        foreach($demandofrecipe as $i => $a) {
+                            if(!(Resource::getResourceCategory($link, $i) == 1)) {
+                                $pop->changeProduction($link, $percentage, $i);
+                                $foundApplicableChange = true;
+                                break;
+                            } else {
+                                $foundApplicableChange = false;
+                            }
+                        }
+
+                        //If the ingredients aren't viable, check for what's in most demand and make that
+                        //if that thing's ingredients are also in need, the system will naturally want them to make the next thing down
+                        if(!$foundApplicableChange) {
+                            $mStockpile = $popmarket->stockpile;
+                            asort($mStockpile);
+                            $sKeys = array_keys($mStockpile);
+                            $newID = 0;
+                            foreach($sKeys as $k) {
+                                if($k != $currentR && !(Resource::getResourceCategory($link, $i) == 1)) {      
+                                    $percentage = 0.15;
+                                    if($pop->getMoney() == 0) {
+                                        $percentage = 0.2;
+                                    } else {
+                                        $percentage = 0.1;
+                                    }
+                                    $pop->changeProduction($link, $percentage, $k);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+function payPlayer($link, $amount, $playerID) {}
+
 ?> 

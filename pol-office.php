@@ -1,17 +1,9 @@
 <?php
-session_start();
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
-    header("location: sign-in.php");
-    exit;
-}
-include_once 'config.php';
-$link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
+include_once 'header/header.php';
 
-$sqlget = "SELECT ID, purse FROM people WHERE User = " . $_SESSION["id"];
-$ID = mysqli_fetch_array(mysqli_query($link, $sqlget), MYSQLI_ASSOC);
-$money = $ID['purse'];
-$ID = $ID['ID'];
-$money = number_format(floatval($money));
+//$sqlget = "SELECT ID, purse FROM people WHERE User = " . $_SESSION["id"];
+$ID = $player->ID;
+$balance = $player->purseString;
 
 if($_SERVER["REQUEST_METHOD"] == "POST") {
   $money = intval($_POST["money"]);
@@ -22,17 +14,16 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
   mysqli_query($link, $sql);
 }
 
-include_once 'functions.php';
-include_once 'header/header.php';
+include_once "classes/mp.php";
+$mps = MP::getAllMPsEmployedBy($link, $ID);
 
-$sqlget = "SELECT * FROM EmployedMPs WHERE employerID = " . $ID;
-$sqlmps = mysqli_query($link, $sqlget);
+include_once "classes/constituency.php";
+$constituencies = Constituency::getAllIDName($link);
 
-$sqlget = "SELECT ID, Name FROM `seats` ORDER BY `seats`.`Name` ASC";
-$sqlseats = mysqli_query($link, $sqlget);
 
 $sqlget = "SELECT Name FROM `seats` ORDER BY ID ASC";
 $sqlseatnames = mysqli_query($link, $sqlget);
+
 ?>
 <script>
   function unhideMPHiring() {
@@ -47,19 +38,19 @@ $sqlseatnames = mysqli_query($link, $sqlget);
 <div class="page-header pt-3">
   <h2>Political HQ</h2>
 </div>
-<div class="col-6">
+<div class="col-md-8 col-sm-12">
   <h3>MPs</h3>
   <p>This is a list of persons you have hired to stand at elections</p>
   <p>People hired to stand at elections are given money to spend on things such as bribes, burgages, and to 'treat' the electors of the given seat. Also, sending more people than there are seats in a given constituency will have an adverse effect in that you will be splitting your own vote</p>
-  <p>Balance: £<?php echo $money; ?></p>
+  <p>Balance: £<?php echo $balance; ?></p>
   <button onclick="unhideMPHiring()" type="button" class="btn btn-primary">Hire an MP</button>
   <div id="hiring-div" style="display:none">
     <form action="pol-office.php" method="post">
       <input type="number" name="money">
       <select name="seat">
         <?php
-          while($seat = mysqli_fetch_array($sqlseats, MYSQLI_ASSOC)) {
-            echo '<option value="' . $seat["ID"] . '">' . $seat["Name"] . '</option>';
+          foreach($constituencies as $c) {
+            echo "<option value=\"{$c[0]}\">{$c[1]}</option>";
           }
         ?>
       </select>
@@ -77,11 +68,14 @@ $sqlseatnames = mysqli_query($link, $sqlget);
       </thead>
       <tbody>
         <?php
-          $mps = mysqli_fetch_all($sqlmps, MYSQLI_ASSOC);
+        if($mps != false) {
           foreach($mps as $mp) {
-            $seatname = mysql_result($sqlseatnames, $mp["seatID"] - 1);
-            echo "<tr><td>" . $mp["ID"] . "</td><td>" . $mp["purse"] . "</td><td>" . $seatname . "</td></tr>";
+            //$seatname = mysql_result($sqlseatnames, $mp["seatID"] - 1);
+            $seatname = Constituency::getConstituencyName($link, $ID);
+            $mpBal = number_format($mp[4]);
+            echo "<tr><td>{$mp[0]}</td><td>£{$mpBal}</td><td>{$seatname}</td></tr>";
           }
+        }
         ?>
       </tbody>
     </table>

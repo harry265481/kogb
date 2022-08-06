@@ -1,6 +1,17 @@
 <?php
+session_start();
+if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
+    header("location: sign-in.php");
+    exit;
+}
 include_once "config.php";
-$link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
+include_once "classes/person.php";
+$valid;
+$player = Person::fromUserID($link, $_SESSION["id"], $valid);
+if($valid == false) {
+    header('Location: create.php');
+    exit;
+}
 include_once "functions.php";
 $data = getTimeStuff($link);
 $year = $data[0];
@@ -32,7 +43,6 @@ $a = $irlyear / $icyear;
             <div class="container-fluid">
                 <a class="navbar-brand">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/2/28/Coat_of_Arms_of_Great_Britain_%281714-1801%29.svg" width="30px" class="d-inline-block align-text-top">
-                    KoGB
                 </a>
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
@@ -71,7 +81,7 @@ $a = $irlyear / $icyear;
             </div>
         </nav>
         <div class="container-fluid">
-            <div class="row flex-nowrap">
+            <div class="content row flex-nowrap">
                 <?php include_once "nav.php" ?>
                 <main class="col ps-3 pt-2">
                     <a href="#" data-bs-target="#sidebar" data-bs-toggle="collapse" class="border rounded-3 p-1 text-decoration-none list-group-item-dark"><i class="bi bi-list bi-lg py-2 p-1"></i> Menu</a>

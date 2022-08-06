@@ -17,12 +17,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     if(empty(trim($_POST["lastname"]))) {
         $firstname_err = "Enter a first name";
     }
-    if(!$firstname_err == "" && !$lastname_err == "") {
+    if($firstname_err == "" && $lastname_err == "") {
         $sql = "SELECT FirstName, LastName FROM people WHERE FirstName = ? AND LastName = ?";
         if($stmt = mysqli_prepare($link, $sql)) {
             mysqli_stmt_bind_param($stmt, "ss", $param_firstname, $param_lastname);
-            $param_firstname = mysqli_real_escape_string(trim($_POST["firstname"]));
-            $param_lastname = mysqli_real_escape_string(trim($_POST["lastname"]));
+            $param_firstname = mysqli_real_escape_string($link, trim($_POST["firstname"]));
+            $param_lastname = mysqli_real_escape_string($link, trim($_POST["lastname"]));
             if(mysqli_stmt_execute($stmt)) {
                 mysqli_stmt_store_result($stmt);
                 if(mysqli_stmt_store_rows($stmt) == 1) {
@@ -107,7 +107,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="form-floating">
                     <input type="text" class="form-control" name="relations">
                     <label for="floatingInput">Important family relations <small>(if any)</small></label>
-                </div><div class="form-floating">
+                </div>
+                <div class="form-floating">
                     <textarea class="form-control" name="bio"></textarea>
                     <label for="floatingTextarea">Character Biography</label>
                 </div>

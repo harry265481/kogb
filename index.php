@@ -33,7 +33,7 @@
                         <li class="nav-item"><a class="nav-link" href="#about">History</a></li>
                         <li class="nav-item"><a class="nav-link" href="#team">Team</a></li>
                         <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
-                        <li class="nav-item"><a class="nav-link" href="sign-in.php">Sign In</a></li>
+                        <li class="nav-item"><a class="nav-link" href="init-oauth.php">Sign In</a></li>
                     </ul>
                 </div>
             </div>

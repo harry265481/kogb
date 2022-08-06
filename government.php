@@ -1,9 +1,4 @@
 <?php
-session_start();
-include 'config.php';
-$link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
-
-include 'functions.php';
 include 'header/header.php';
 $groups = mysqli_fetch_all(mysqli_query($link, "SELECT * FROM posgroups"), MYSQLI_ASSOC);
 $positions = mysqli_fetch_all(mysqli_query($link, "SELECT * FROM positions"), MYSQLI_ASSOC);
