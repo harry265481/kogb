@@ -4,16 +4,16 @@ include_once __DIR__ . "/terrain.php";
 include_once __DIR__ . "/../defines.php";
 
 class Province {
-    private $ID = 0;
-    private $name = "";
-    private Terrain $terrain;
-    private $country = 0;
-    private $pops = array();
-    private $aOwners = array();
-    private $nOwners = 0;
-    private $hasOwners = false;
-    private $nRGOWorkers = 0;
-    private $population = 0;
+    public $ID = 0;
+    public $name = "";
+    public Terrain $terrain;
+    public $country = 0;
+    public $pops = array();
+    public $aOwners = array();
+    public $nOwners = 0;
+    public $hasOwners = false;
+    public $nRGOWorkers = 0;
+    public $population = 0;
 
     function __construct($link, $ID) {
         $this->ID = $ID;
@@ -85,7 +85,7 @@ class Province {
 
     function getName() {
         return $this->name;
-    }
+    } 
 
     function getCountry() {
         return $this->country;

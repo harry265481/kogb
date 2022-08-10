@@ -55,7 +55,6 @@ if($house->type == 1) {
       }
     </script>';
 }
-
 ?>
 <div class="row mt-3">
   <h2 class="text-center"><?php echo $house->getParliamentName($link); ?></h2>
@@ -70,13 +69,13 @@ if($house->type == 1) {
   </div>
 </div>
 <div class="row">
-    <div class="col-sm-0 col-md-2 col-xl-3">
+    <div class="col-sm-0 col-md-1 col-xl-3">
     </div>
-    <div class="col-sm-12 col-md-8 col-xl-6">
+    <div class="col-sm-12 col-md-10 col-xl-6">
         <table class="table table-dark">
             <thead>
                 <tr>
-                  <th width="10%">Title</th>
+                  <th>Title</th>
                   <th>Author</th>
                   <th>Voting</th>
                   <th>Stage</th>
@@ -86,18 +85,19 @@ if($house->type == 1) {
             <tbody>
                 <?php
                 if(count($bills) > 0) {
-                  foreach($bils as $bill) {
-                    echo "<tr>";
-                    echo "<td>{$bill->longTitle}</td>";
+                  foreach($bills as $bill) {
+                    echo  "<tr>";
+                    echo    "<td nowrap>{$bill->shortTitle}</td>";
                     $name = Person::getDisplayName($link, $bill->author);
-                    echo "<td>{$name}</td>";
+                    echo    "<td>{$name}</td>";
                     if($house->type == 0) {
-                      echo "<td>{$bill->HoLyays} - {$bill->HoLyays}</td>";
+                      echo  "<td>{$bill->HoLyays} - {$bill->HoLyays}</td>";
                     } else if($house->type == 1) {
-                      echo "<td>{$bill->HoCyays} - {$bill->HoCyays}</td>";
+                      echo  "<td>{$bill->HoCyays} - {$bill->HoCyays}</td>";
                     }
                     $stage = Bill::$stages[$bill->Stage];
-                    echo "<td>{$stage}</td>";
+                    echo    "<td>{$stage}</td>";
+                    echo    "<td><a class=\"btn btn-primary\" href=\"bill.php?id={$bill->ID}\">View</a></td>";
                     echo "</tr>";
                   }
                 }
@@ -105,40 +105,41 @@ if($house->type == 1) {
             </tbody>
         </table>
     </div>
-    <div class="col-sm-0 col-md-2 col-xl-3">
+    <div class="col-sm-0 col-md-1 col-xl-3">
     </div>
 </div>
+<hr>
 <div class="row">
-    <div class="col-sm-0 col-md-2 col-xl-3">
+    <div class="col-sm-0 col-xl-1">
     </div>
-    <div class="col-sm-12 col-md-8 col-xl-6">
-    <?php
-if($house->type == 1) {
-    echo '
-        <button type="button" class="btn btn-primary mb-2" onclick="hideColumn(\'county\')">Show/Hide Counties</button>
-        <button type="button" class="btn btn-primary mb-2" onclick="hideColumn(\'country\')">Show/Hide Countries</button>
-        <div style="max-width:30%" class="col-md-4 col-sm-3 input-group mb-2">
-            <div class="input-group-prepend">
-                <span class="input-group-text">Search</span>
-            </div>
-            <input type="text" oninput="searchRows(this.value)" style="width: 30% !important" class="form-control" placeholder="Seat Name...">
-        </div>
-        <div class="input-group mb-3">
-            <select oninput="showCounty(this.value)" class="custom-select">
-                <option selected>All</option>';
-                $sqlcounties = mysqli_query($link, "SELECT Name FROM Counties");
-                while($county = mysqli_fetch_array($sqlcounties, MYSQLI_ASSOC)) {
-                    echo '<option value="' . $county['Name'] . '">' . $county['Name'] . '</option>';
-                }
-                
-            echo
-           '</select>
-            <div class="input-group-append">
-                <label class="input-group-text" for="inputGroupSelect02">County(s)</label>
-            </div>
-        </div>';
-}
-?>
+    <div class="col-sm-12 col-xl-10">
+      <?php
+        if($house->type == 1) {
+          echo '
+              <button type="button" class="btn btn-primary mb-2" onclick="hideColumn(\'county\')">Show/Hide Counties</button>
+              <button type="button" class="btn btn-primary mb-2" onclick="hideColumn(\'country\')">Show/Hide Countries</button>
+              <div style="max-width:30%" class="col-md-4 col-sm-3 input-group mb-2">
+                  <div class="input-group-prepend">
+                      <span class="input-group-text">Search</span>
+                  </div>
+                  <input type="text" oninput="searchRows(this.value)" style="width: 30% !important" class="form-control" placeholder="Seat Name...">
+              </div>
+              <div class="input-group mb-3">
+                  <select oninput="showCounty(this.value)" class="custom-select">
+                      <option selected>All</option>';
+                      $sqlcounties = mysqli_query($link, "SELECT Name FROM Counties");
+                      while($county = mysqli_fetch_array($sqlcounties, MYSQLI_ASSOC)) {
+                          echo '<option value="' . $county['Name'] . '">' . $county['Name'] . '</option>';
+                      }
+                      
+                  echo
+                '</select>
+                  <div class="input-group-append">
+                      <label class="input-group-text" for="inputGroupSelect02">County(s)</label>
+                  </div>
+              </div>';
+        }
+      ?>
         <table class="table table-dark">
             <thead>
                 <tr>
@@ -219,17 +220,17 @@ if($house->type == 1) {
                         echo '<td>' . $row['Name'] .' </td>';
                         echo '<td class="county" style="display: none">' . $row['County'] .' </td>';
                         echo '<td class="country" style="display: none">' . $row['Country'] .' </td>';
-                        echo '<td style="background-color:' . $seat1c . ' !important"; max-width: 15px></td>';
+                        echo '<td style="background-color:' . $seat1c . ' !important; width:15px"></td>';
                         echo '<td>' . $seat1 . ' </td>';
-                        echo '<td style="background-color:' . $seat2c . ' !important; max-width: 15px"></td>';
+                        echo '<td style="background-color:' . $seat2c . ' !important; width:15px"></td>';
                         echo '<td>' . $seat2 . ' </td>';
-                        echo '<td style="background-color:' . $seat3c . ' !important; max-width: 15px"></td>';
+                        echo '<td style="background-color:' . $seat3c . ' !important; width:15px"></td>';
                         echo '<td>' . $seat3 . ' </td>';
-                        echo '<td style="background-color:' . $seat4c . ' !important; max-width: 15px"></td>';
+                        echo '<td style="background-color:' . $seat4c . ' !important; width:15px"></td>';
                         echo '<td>' . $seat4 . ' </td>';
                         echo '<form action=seat.php method=get>';
-                        echo '<td>'."<input class='btn btn-primary btn-outline' type=submit name=view value=View".' </td>';
-                        echo "<td style='display:none;'>".'<input type=hidden name=id value='.$row['ID'].' </td>';
+                        echo    '<td>'."<input class='btn btn-primary btn-outline' type=submit name=view value=View".' </td>';
+                        echo    "<td style='display:none;'>".'<input type=hidden name=id value='.$row['ID'].' </td>';
                         echo '</form>';
                         echo '</tr>';
                     }
@@ -238,13 +239,13 @@ if($house->type == 1) {
             </tbody>
         </table>
     </div>
-    <div class="col-sm-0 col-md-2 col-xl-3">
+    <div class="col-sm-0 col-xl-1">
     </div>
 </div>
 <?php if($member) {
-  echo '
-  <div class="text-center">
-    <a href="newbill.php" class="btn btn-primary">New Bill</a>
-  </div>';
+  echo "
+  <div class=\"text-center\">
+    <a href=\"newbill.php?id={$houseID}\" class=\"btn btn-primary\">New Bill</a>
+  </div>";
 }
 include_once "footer.php"; ?>

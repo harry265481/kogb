@@ -1,4 +1,5 @@
 <?php
+include_once 'header/header.php';
 if($_SESSION["adminlevel"] <= 0){
   header("location: home.php");
   exit;

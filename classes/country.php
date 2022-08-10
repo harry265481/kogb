@@ -3,9 +3,10 @@
 include_once __DIR__ . "/province.php";
 
 class Country {
-    protected $ID = 0;
-    protected $name = "";
-    protected $provinces = array();
+    public $ID = 0;
+    public $name = "";
+    public $abbrev = "";
+    public $provinces = array();
 
     function __construct($link, $ID) {
         $this->ID = $ID;
@@ -26,16 +27,12 @@ class Country {
         return $aProvinces;
     }
 
-    function getID() {
-        return $this->ID;
-    }
-
-    function getName() {
-        return $this->name;
-    }
-
-    function getProvinces() {
-        return $this->provinces;
+    function getPopulation() {
+        $population = 0;
+        foreach($this->provinces as $p) {
+            $population += $p->population;
+        }
+        return $population;
     }
 }
 

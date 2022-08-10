@@ -4,30 +4,71 @@ include_once __DIR__ . "/country.php";
 include_once __DIR__ . "/market.php";
 
 class Nation {
-    private $ID = 0;
-    private $name = "";
-    private $countries = array();
-    private Market $commonMarket;
+    public $ID = 0;
+    public $name = "";
+    public $abbrev = "";
+    public $countries = array();
+    public $headOfGovPos = 0;
+    public $empire = 0;
+    public $parliamentIDs;
+    public Market $commonMarket;
+
+    static function getNationDetails($link, $ID) {
+        return mysqli_fetch_array(mysqli_query($link, "SELECT * FROM nations WHERE ID = {$ID}"));
+    }
 
     function __construct($link, $ID) {
         $this->ID = $ID;
-        $this->name = $this->getNationName($link, $ID);
-        $this->countries = $this->getNationCountries($link, $ID);
+        $this->name = $this->getNationName($link);
+        $this->abbrev = $this->getNationAbbrev($link);
+        $this->countries = $this->getNationCountries($link);
+        $this->empire = $this->getNationEmpire($link);
+        $this->headOfGovPos = $this->getNationGovPos($link);
         $this->commonMarket = new Market($link);
+        $this->parliamentIDs = $this->getNationParliament($link);
     }
 
-    private function getNationName($link, $ID) {
+    private function getNationName($link) {
         return mysqli_fetch_array(mysqli_query($link, "SELECT name FROM nations WHERE ID = {$this->ID}"))[0];
     }
 
-    private function getNationCountries($link, $ID) {
+    private function getNationAbbrev($link) {
+        return mysqli_fetch_array(mysqli_query($link, "SELECT abbrev FROM nations WHERE ID = {$this->ID}"))[0];
+    }
+
+    private function getNationEmpire($link) {
+        return mysqli_fetch_array(mysqli_query($link, "SELECT empire FROM nations WHERE ID = {$this->ID}"))[0];
+    }
+
+    private function getNationGovPos($link) {
+        return mysqli_fetch_array(mysqli_query($link, "SELECT headOfGovPos FROM nations WHERE ID = {$this->ID}"))[0];
+    }
+
+    private function getNationParliament($link) {
+        $sql = mysqli_query($link, "SELECT houseIDs FROM parliament WHERE nationID = {$this->ID}");
+        if(mysqli_num_rows($sql)) {
+            return mysqli_fetch_array($sql)[0];
+        } else {
+            return false;
+        }
+    }
+
+    private function getNationCountries($link) {
         $sCountries = mysqli_fetch_all(mysqli_query($link, "SELECT ID FROM countries WHERE nationID = {$this->ID}"));
         $aCountries = array();
         foreach($sCountries as $fCountry) {
             $oCountry = new Country($link, $fCountry[0]);
-            $aCountries[$oCountry->getID()] = $oCountry;
+            $aCountries[$oCountry->ID] = $oCountry;
         }
         return $aCountries;
+    }
+
+    function getPopulation() {
+        $population = 0;
+        foreach($this->countries as $c) {
+            $population += $c->getPopulation();
+        }
+        return $population;
     }
 
     function getID() {

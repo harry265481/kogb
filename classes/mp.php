@@ -12,5 +12,9 @@ class MP {
             return false;
         }
     }
+
+    static function getAllMPsInSeat($link, $ID) {
+        return mysqli_fetch_all(mysqli_query($link, "SELECT * FROM EmployedMPs WHERE seatID = {$ID}"), MYSQLI_ASSOC);
+    }
 }
 ?>

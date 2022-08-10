@@ -12,7 +12,6 @@ class Market implements ArrayAccess {
         foreach($rIDs as $r) {
             $stockpile[intval($r[0])] = 0;
         }
-        print_r2($stockpile);
     }
 
     function offsetSet($offset, $value) {

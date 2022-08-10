@@ -1,16 +1,9 @@
 <?php
-session_start();
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
-    header("location: sign-in.php");
-    exit;
-}
+include_once 'header/header.php';
+include_once "classes/constituency.php";
+include_once "classes/mp.php";
 $seatID = $_GET['id'];
-include 'config.php';
-include 'functions.php';
-$link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
-$sqlget = 'SELECT * FROM seats WHERE ID = ' . $seatID;
-$sqldata = mysqli_query($link, $sqlget) or die('Connection could not be established');
-$sqlProvince = mysqli_fetch_assoc($sqldata);
+$sqlProvince = Constituency::getConstituency($link, $seatID);
 
 $burgages;
 
@@ -22,16 +15,8 @@ if($sqlProvince['FranchiseType'] == 3) {
 }
 
 $name = $sqlProvince['Name'];
+$mps = MP::getAllMPsInSeat($link, $seatID);
 
-$hasmps = "false";
-
-$sqlget = 'SELECT * FROM EmployedMPs WHERE seatID = ' . $seatID;
-$sqlmps = mysqli_query($link, $sqlget);
-if(mysqli_num_rows($sqlmps) > 0) {
-    $hasmps = true;
-}
-
-include 'header/header.php';
 ?>
     <script>
         window.onload = function() {
@@ -122,12 +107,10 @@ include 'header/header.php';
                 </thead>
                 <tbody>
                     <?php
-                    if($hasmps) {
-                        while($mp = mysqli_fetch_array($sqlmps, MYSQLI_ASSOC)) {
-                            $employer = getMPEmployerName ($link, $mp['ID']);
-                            $color = getMPColor($link, $mp['ID']);
-                            echo "<tr><td>{$mp['ID']}</td><td width=\"15px\" style=\"background-color:{$color}\"></td><td>{$employer}</td></tr>";
-                        }
+                    foreach($mps as $mp) {
+                        $employer = getMPEmployerName ($link, $mp['ID']);
+                        $color = getMPColor($link, $mp['ID']);
+                        echo "<tr><td>{$mp['ID']}</td><td width=\"15px\" style=\"background-color:{$color}\"></td><td>{$employer}</td></tr>";
                     }
                     ?>
                 </tbody>

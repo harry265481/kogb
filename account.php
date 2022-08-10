@@ -1,19 +1,10 @@
 <?php
-session_start();
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
-    header("location: sign-in.php");
-    exit;
-}
-include_once 'config.php';
-$character_err = "";
+include_once 'header/header.php';
 
 $discid = $_SESSION['discid'];
 $discname = $_SESSION['username'];
 $discavatar = $_SESSION['avatar'];
 $avatar = "https://cdn.discordapp.com/avatars/{$discid}/{$discavatar}.png";
-
-include_once 'functions.php';
-include_once 'header/header.php';
 ?>
 <div class="page-header pt-3">
   <h2>My Account</h2>

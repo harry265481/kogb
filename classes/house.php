@@ -46,5 +46,9 @@ class House {
         $nationID = mysqli_fetch_array(mysqli_query($link,"SELECT nationID FROM parliament WHERE ID = {$this->parliamentID}"))[0];
         return "Parliament of " . mysqli_fetch_array(mysqli_query($link,"SELECT `name` FROM nations WHERE ID =  {$nationID}"))[0];
     }
+
+    static function getHouseName($link, $ID) {
+        return mysqli_fetch_array(mysqli_query($link,"SELECT `Name` FROM parliamenthouse WHERE ID = {$ID}"))[0];
+    }
 }
 ?>

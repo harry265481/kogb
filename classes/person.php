@@ -1,5 +1,6 @@
 <?php
 include_once __DIR__ . "/polnation.php";
+include_once __DIR__ . "/position.php";
 
 class Person {
     public $ID;
@@ -13,6 +14,7 @@ class Person {
     public $purse;
     public $purseString;
     public $house;
+    public $positions = array();
     public PolNation $nation;
 
     function __construct($link, $ID, &$valid) {
@@ -45,6 +47,7 @@ class Person {
         $this->purse = $sChar["purse"];
         $this->purseString = number_format(floatval($this->purse));
         $this->house = $sChar["House"];
+        $this->positions = Position::getPositionsOfPerson($link, $ID);
 
         //TODO Make this work for more than just britain
         //TODO Make this not load for every time this class is created

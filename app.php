@@ -1,16 +1,10 @@
 <?php
-session_start();
+include 'header/header.php';
 $ID  = $_GET['id'];
-include 'config.php';
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
-    header("location: sign-in.php");
-    exit;
-}
 if(!isset($_SESSION['adminlevel']) || $_SESSION["adminlevel"] <= 0) {
     header("location: home.php");
     exit;
 }
-include 'functions.php';
 $link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
 if($_SERVER["REQUEST_METHOD"] == "POST") {
     if($_POST['approval'] == '1') {
@@ -53,10 +47,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 }
+
 $sqldata = mysqli_fetch_array(mysqli_query($link, "SELECT * FROM people WHERE id = {$ID}"));
 $FirstName = $sqldata['FirstName'];
 $LastName = $sqldata['LastName'];
-include 'header/header.php';
 ?>
     <?php echo "<form action=\"app.php?id={$ID}\" method=\"post\">" ?>
         <div class="row">

@@ -18,5 +18,9 @@ class Constituency {
     static function getConstituencyName($link, $ID) {
         return mysqli_fetch_array(mysqli_query($link, "SELECT Name FROM `seats` WHERE ID = {$ID}"))[0];
     }
+    
+    static function getConstituency($link, $ID) {
+        return mysqli_fetch_array(mysqli_query($link, "SELECT * FROM `seats` WHERE ID = {$ID}"));
+    }
 }
 ?>

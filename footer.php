@@ -9,7 +9,7 @@
                 var now = new Date();
 
                 //RL ms since time start x a for dilation
-                var ct = (now - startDate) * <?php echo $a ?>;
+                var ct = (now - startDate) * <?php echo $ratio ?>;
                 //ct = Math.floor(ct);
                 var timestamp = new Date(ct);
                 timestamp.setFullYear(<?php echo $year ?>);

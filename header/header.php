@@ -1,7 +1,7 @@
 <?php
 session_start();
 if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
-    header("location: sign-in.php");
+    header("location: init-oauth.php");
     exit;
 }
 include_once "config.php";
@@ -19,7 +19,7 @@ $time = $data[1];
 $irlweek = 604800 * 1000;
 $irlyear = 31557600 * 1000;
 $icyear = $irlweek * $data[2];
-$a = $irlyear / $icyear;
+$ratio = $irlyear / $icyear;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -35,7 +35,6 @@ $a = $irlyear / $icyear;
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
         <script src="https://kit.fontawesome.com/fb41f04bab.js" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
-        <link rel="stylesheet" href="css/style-main.css">
 
     </head>
     <body class="bg-dark text-light" onload="startTime()">
