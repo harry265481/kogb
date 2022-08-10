@@ -68,7 +68,7 @@ $nation = new Nation($link, $nationID);
                         $filename = "NAME_" . $p->name . ".geojson";
                         echo "map.addSource('{$p->name}', {
                             'type': 'geojson',
-                            'data': 'http://localhost/kogb/assets/geojson/{$filename}' 
+                            'data': 'assets/geojson/{$filename}' 
                         });
                         map.addLayer({ 'id': '{$p->name}',
                             'type': 'fill',
