@@ -49,13 +49,21 @@ $nation = new Nation($link, $nationID);
             }
             echo "</div>";
         ?>
+    </div>
+    <div class="col-sm-0 col-md-1 col-lg-2 col-xl-3">
+    </div>
+</div>
+<div class="row mt-3 text-center">
+    <div class="col-sm-0 col-xl-1">
+    </div>
+    <div class="col-sm-12 col-xl-10">
         <div id="map" style='width: 100%; height: 800px;'></div>
         <script>
             mapboxgl.accessToken = 'pk.eyJ1IjoiaGFycnkyNjU0OCIsImEiOiJjbDZqd3VxZXEzbml5M2RwM2swcDE1OXZ1In0.gHBBefRRGqmBg2Izg8sDtA';
             const map = new mapboxgl.Map({
                 container: 'map', // container ID
                 //style: 'mapbox://styles/mapbox/light-v10', // style URL
-                style: 'mapbox://styles/harry26548/cl6ixru2f000014m5x2no85sb', // style URL
+                style: 'mapbox://styles/harry26548/cl6n4y4ln005g15np0hgp2mk0', // style URL
                 center: [0.0, 51.5], // starting position [lng, lat]
                 zoom: 6, // starting zoom
                 projection: 'equirectangular', // display the map as a 3D globe
@@ -84,7 +92,7 @@ $nation = new Nation($link, $nationID);
                             'source': '{$p->name}',
                             'paint': {
                                 'line-color': '#000',
-                                'line-width': 3
+                                'line-width': 1
                             }
                         });";
                     }
@@ -93,7 +101,7 @@ $nation = new Nation($link, $nationID);
             })
         </script>
     </div>
-    <div class="col-sm-0 col-md-1 col-lg-2 col-xl-3">
+    <div class="col-sm-0 col-xl-1">
     </div>
 </div>
 <?php include_once "footer.php" ?>
