@@ -87,9 +87,7 @@ $nation = new Nation($link, $nationID);
                                 'line-width': 3
                             }
                         });";
-                        break;
                     }
-                    break;
                 }
                 ?>
             })
