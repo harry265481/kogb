@@ -1,0 +1,8 @@
+:root {
+    --bs-success: #005434;
+    --bs-danger: #9d0830;
+    --bs-warning: #5f2db4;
+    --bs-success-rgb: 0, 84, 52;
+    --bs-danger-rgb: 157, 8, 48;
+    --bs-warning-rgb: 95, 45, 180;
+}

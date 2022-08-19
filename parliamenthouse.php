@@ -2,19 +2,29 @@
 include_once 'header/header.php';
 include_once 'classes/house.php';
 include_once 'classes/party.php';
+include_once 'classes/mp.php';
 include_once 'classes/bill.php';
 $houseID = $_GET['id'];
 $house = new House($link, $houseID);
-
+/*
+echo "<pre>";
+print_r($house);
+echo "</pre>";
+*/
 $member = false;
 if($player->house == $house->ID) {
   $member = true;
 }
 
+$po = false;
+if($player->ID == $house->presidingOfficer) {
+  $po = true;
+}
+
 $bills = Bill::getHouseBills($link, $house->ID);
 
 if($house->type == 1) {
-    $sqlget = 'SELECT ID, Name, County, Country, Franchise, voters, seats, seat1, seat2, seat3, seat4 FROM seats WHERE Parliament = 0';
+    $sqlget = "SELECT ID, Name, County, Country, Franchise, voters, seats, seat1, seat2, seat3, seat4 FROM seats WHERE Parliament = {$houseID}";
     $sqldata = mysqli_query($link, $sqlget);
     echo '
     <script>
@@ -77,7 +87,6 @@ if($house->type == 1) {
                 <tr>
                   <th>Title</th>
                   <th>Author</th>
-                  <th>Voting</th>
                   <th>Stage</th>
                   <th></th>
                 </tr>
@@ -86,19 +95,16 @@ if($house->type == 1) {
                 <?php
                 if(count($bills) > 0) {
                   foreach($bills as $bill) {
-                    echo  "<tr>";
-                    echo    "<td nowrap>{$bill->shortTitle}</td>";
-                    $name = Person::getDisplayName($link, $bill->author);
-                    echo    "<td>{$name}</td>";
-                    if($house->type == 0) {
-                      echo  "<td>{$bill->HoLyays} - {$bill->HoLyays}</td>";
-                    } else if($house->type == 1) {
-                      echo  "<td>{$bill->HoCyays} - {$bill->HoCyays}</td>";
+                    if($bill->Stage > 0) {
+                      echo  "<tr>";
+                      echo    "<td nowrap>{$bill->shortTitle}</td>";
+                      $name = Person::getDisplayName($link, $bill->author);
+                      echo    "<td>{$name}</td>";
+                      $stage = Bill::$stages[$bill->Stage];
+                      echo    "<td>{$stage}</td>";
+                      echo    "<td class=\"text-end\"><a class=\"btn btn-primary\" href=\"bill.php?id={$bill->ID}\">View</a></td>";
+                      echo "</tr>";
                     }
-                    $stage = Bill::$stages[$bill->Stage];
-                    echo    "<td>{$stage}</td>";
-                    echo    "<td><a class=\"btn btn-primary\" href=\"bill.php?id={$bill->ID}\">View</a></td>";
-                    echo "</tr>";
                   }
                 }
                 ?>
@@ -110,137 +116,168 @@ if($house->type == 1) {
 </div>
 <hr>
 <div class="row">
-    <div class="col-sm-0 col-xl-1">
-    </div>
-    <div class="col-sm-12 col-xl-10">
-      <?php
-        if($house->type == 1) {
-          echo '
-              <button type="button" class="btn btn-primary mb-2" onclick="hideColumn(\'county\')">Show/Hide Counties</button>
-              <button type="button" class="btn btn-primary mb-2" onclick="hideColumn(\'country\')">Show/Hide Countries</button>
-              <div style="max-width:30%" class="col-md-4 col-sm-3 input-group mb-2">
-                  <div class="input-group-prepend">
-                      <span class="input-group-text">Search</span>
-                  </div>
-                  <input type="text" oninput="searchRows(this.value)" style="width: 30% !important" class="form-control" placeholder="Seat Name...">
-              </div>
-              <div class="input-group mb-3">
-                  <select oninput="showCounty(this.value)" class="custom-select">
-                      <option selected>All</option>';
-                      $sqlcounties = mysqli_query($link, "SELECT Name FROM Counties");
-                      while($county = mysqli_fetch_array($sqlcounties, MYSQLI_ASSOC)) {
-                          echo '<option value="' . $county['Name'] . '">' . $county['Name'] . '</option>';
-                      }
-                      
-                  echo
-                '</select>
-                  <div class="input-group-append">
-                      <label class="input-group-text" for="inputGroupSelect02">County(s)</label>
-                  </div>
-              </div>';
-        }
-      ?>
-        <table class="table table-dark">
-            <thead>
-                <tr>
-                    <?php
-                    if($house->type == 0) {
-                        echo "
-                        <th>Name</th>
-                        <th>Title(s)</th>
-                        <th>Side</th>";
-                    } else if($house->type == 1) {
-                        echo '
-                        <th>Name</th>
-                        <th class="county" style="display: none">County</th>
-                        <th class="country" style="display: none">Country</th>
-                        <th style="white-space: nowrap;" colspan="2">Seat 1</th>
-                        <th style="white-space: nowrap;" colspan="2">Seat 2</th>
-                        <th style="white-space: nowrap;" colspan="2">Seat 3</th>
-                        <th style="white-space: nowrap;" colspan="2">Seat 4</th>
-                        <th></th>';
-                    }
-                    ?>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                if($house->type == 0) {
-                    foreach($house->members as $m) {
-                        echo '<tr>';
-                        echo "<td>{$m->fullname}</td>";
-                        echo "<td>{$m->title}</td>";
-                        $position = Party::getPartyPosition($link, $m->party);
-
-                        if($position == 0) {
-                            $side = "Speaker";
-                        } else if($position == 1) {
-                            $side = "Government";
-                        } else if($position == 2) {
-                            $side = "Opposition";
-                        } else if($position == 3) {
-                            $side = "Crossbench";
-                        }
-                        echo '<td>' . $side .'</td>';
-                        echo '</tr>';
-
-                    }
-                } else if($house->type == 1) {
-                    $sqlgetPartyNames = mysqli_query($link, 'SELECT Name, Color FROM parties');
-                    while ($row = mysqli_fetch_array($sqldata, MYSQLI_ASSOC)) {
-                      $seat1 = "N/A";
-                      $seat1c = "#ccc";
-                      $seat2 = "N/A";
-                      $seat2c = "#ccc";
-                      $seat3 = "N/A";
-                      $seat3c = "#ccc";
-                      $seat4 = "N/A";
-                      $seat4c = "#ccc";
-                      if($row['seats'] == 1) {
-                        $seat1c = getMPColor($link, $row['seat1']);
-                        $seat1 = getMPPartyName($link, $row['seat1']);
-                      } else if($row['seats'] == 2) {
-                        $seat1c = getMPColor($link, $row['seat1']);
-                        $seat1 = getMPPartyName($link, $row['seat1']);
-                        $seat2c = getMPColor($link, $row['seat2']);
-                        $seat2 = getMPPartyName($link, $row['seat2']);
-                      } else if($row['seats'] == 4) {
-                        $seat1c = getMPColor($link, $row['seat1']);
-                        $seat1 = getMPPartyName($link, $row['seat1']);
-                        $seat2c = getMPColor($link, $row['seat2']);
-                        $seat2 = getMPPartyName($link, $row['seat2']);
-                        $seat3c = getMPColor($link, $row['seat3']);
-                        $seat3 = getMPPartyName($link, $row['seat3']);
-                        $seat4c = getMPColor($link, $row['seat4']);
-                        $seat4 = getMPPartyName($link, $row['seat4']);
-                      }
-                    
-                        //Print it all as a row
-                        echo '<tr>';
-                        echo '<td>' . $row['Name'] .' </td>';
-                        echo '<td class="county" style="display: none">' . $row['County'] .' </td>';
-                        echo '<td class="country" style="display: none">' . $row['Country'] .' </td>';
-                        echo '<td style="background-color:' . $seat1c . ' !important; width:15px"></td>';
-                        echo '<td>' . $seat1 . ' </td>';
-                        echo '<td style="background-color:' . $seat2c . ' !important; width:15px"></td>';
-                        echo '<td>' . $seat2 . ' </td>';
-                        echo '<td style="background-color:' . $seat3c . ' !important; width:15px"></td>';
-                        echo '<td>' . $seat3 . ' </td>';
-                        echo '<td style="background-color:' . $seat4c . ' !important; width:15px"></td>';
-                        echo '<td>' . $seat4 . ' </td>';
-                        echo '<form action=seat.php method=get>';
-                        echo    '<td>'."<input class='btn btn-primary btn-outline' type=submit name=view value=View".' </td>';
-                        echo    "<td style='display:none;'>".'<input type=hidden name=id value='.$row['ID'].' </td>';
-                        echo '</form>';
-                        echo '</tr>';
-                    }
+    <div class="col-sm-0 col-md-1 col-xl-3"></div>
+    <div class="col-sm-12 col-md-10 col-xl-6">
+      <table class="table table-dark">
+        <thead>
+          <th colspan="2">Name</th>
+          <th width="60px">#</th>
+          <th>Side</th>
+          <th></th>
+        </thead>
+        <tbody>
+          <?php
+            if($house->type == 0){
+              $count = array();
+              foreach($house->members as $member) {
+                if(!isset($count[$member->party])) {
+                  $count[$member->party] = 0;
                 }
-                ?>
-            </tbody>
-        </table>
+                $count[$member->party] += 1;
+              }
+              arsort($count);
+              foreach($count as $party => $amount) {
+                $partydetails = Party::getPartyDetails($link, $party);
+                $positionText = Party::$sides[$partydetails[5]];
+                echo "<tr>
+                  <td width=\"15px\" style=\"background-color: {$partydetails[2]}\"></td>
+                  <td>{$partydetails[1]}</td>
+                  <td>{$amount}</td>
+                  <td>{$positionText}</td>
+                  <td><a class=\"btn btn-primary\" href=\"faction.php?id={$partydetails[0]}\">View</a></td>
+                </tr>";
+              }
+            } else if($house->type == 1) {
+              $count = array();
+              foreach($house->MPs as $mp) {
+                if(!isset($count[$mp->partyID])) {
+                  $count[$mp->partyID] = 0;
+                }
+                $count[$mp->partyID] += 1;
+              }
+              arsort($count);
+              foreach($count as $party => $amount) {
+                $partydetails = Party::getPartyDetails($link, $party);
+                $positionText = Party::$sides[$partydetails[5]];
+                echo "
+                <tr>
+                  <td width=\"15px\" style=\"background-color: {$partydetails[2]}\"></td>
+                  <td>{$partydetails[1]}</td>
+                  <td>{$amount}</td>
+                  <td>{$positionText}</td>
+                  <td class=\"text-end\"><a class=\"btn btn-primary\" href=\"faction.php?id={$partydetails[0]}\">View</a></td>
+                </tr>";
+              }
+            }
+          ?>
+        </tbody>
+      </table>
     </div>
-    <div class="col-sm-0 col-xl-1">
+    <div class="col-sm-0 col-md-1 col-xl-3"></div>
+
+</div>
+<hr>
+<div class="row">
+  <div class="col-sm-0 col-xl-1"></div>
+  <div class="col-sm-12 col-xl-10">
+    <?php if($house->type == 1): ?>
+    <a href="#" class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#memberslist">Show Seats</a>
+    <?php else: ?>
+    <a href="#" class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#memberslist">Show Members</a>
+    <?php endif ?>
+    <hr>
+    <div class="collapse" id="memberslist">
+      <?php if($house->type == 1): ?>
+        <button type="button" class="btn btn-primary mb-2" onclick="hideColumn('county')">Show/Hide Counties</button>
+        <button type="button" class="btn btn-primary mb-2" onclick="hideColumn('country')">Show/Hide Countries</button>
+        <div style="max-width:30%" class="col-md-4 col-sm-3 input-group mb-2">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Search</span>
+          </div>
+          <input type="text" oninput="searchRows(this.value)" style="width: 30% !important" class="form-control" placeholder="Seat Name...">
+        </div>
+        <div class="input-group mb-3">
+          <select oninput="showCounty(this.value)" class="custom-select">
+            <option selected>All</option>
+            <?php
+            $sqlcounties = mysqli_query($link, "SELECT Name FROM Counties");
+            while($county = mysqli_fetch_array($sqlcounties, MYSQLI_ASSOC)) {
+              echo "<option value={$county['Name']}>{$county['Name']}</option>";
+            }
+            ?>
+          </select>
+          <div class="input-group-append">
+            <label class="input-group-text" for="inputGroupSelect02">County(s)</label>
+          </div>
+        </div>
+      <?php endif ?>
+      <table class="table table-dark">
+        <thead>
+          <tr>
+            <?php
+            if($house->type == 0) {
+                echo "
+                <th>Name</th>
+                <th>Title(s)</th>
+                <th>Side</th>";
+            } else if($house->type == 1) {
+                echo '
+                <th>Name</th>
+                <th class="county" style="display: none">County</th>
+                <th class="country" style="display: none">Country</th>
+                <th style="white-space: nowrap;" colspan="2">Seat 1</th>
+                <th style="white-space: nowrap;" colspan="2">Seat 2</th>
+                <th style="white-space: nowrap;" colspan="2">Seat 3</th>
+                <th style="white-space: nowrap;" colspan="2">Seat 4</th>
+                <th></th>';
+            }
+            ?>
+          </tr>
+        </thead>
+        <tbody>
+          <?php
+          if($house->type == 0) {
+              foreach($house->members as $m) {
+                  echo "<tr>";
+                  echo "<td>{$m->fullname}</td>";
+                  echo "<td>{$m->title}</td>";
+                  $position = Party::getPartyPosition($link, $m->party);
+                  $side = Party::$sides[$position];
+                  echo "<td>{$side}</td>";
+                  echo "</tr>";
+
+              }
+          } else if($house->type == 1) {
+            $sqlgetPartyNames = mysqli_fetch_all(mysqli_query($link, 'SELECT Name, Color FROM parties'), MYSQLI_ASSOC);
+            foreach ($sqldata as $row) {
+              for($i = 1; $i <= 4; $i++) {
+                ${'seat' . $i} = "N/A";
+                ${'seat' . $i . 'c'} = "#ccc";
+              }
+              for($i = 1; $i <= $row['seats']; $i++) {
+                ${'seat' . $i . 'c'} = MP::getMPColor($link, $row['seat1']);
+                ${'seat' . $i} = MP::getMPPartyName($link, $row['seat1']);
+              }
+            
+              //Print it all as a row
+              echo "<tr>";
+              echo "<td>{$row['Name']}</td>";
+              echo "<td class=\"county\" style=\"display: none\">{$row['County']}</td>";
+              echo "<td class=\"country\" style=\"display: none\">{$row['Country']}</td>";
+              for($i = 1; $i <= 4; $i++) {
+                echo "<td style=\"background-color:${'seat' . $i . 'c'} !important; width:15px\"></td>";
+                echo "<td>{$seat1}</td>";
+              }
+              echo "<td><a class='btn btn-primary' href='seat.php?id={$row['ID']}'>View</a></td>";
+              echo "</tr>";
+            }
+          }
+          ?>
+        </tbody>
+      </table>
     </div>
+  </div>
+  <div class="col-sm-0 col-xl-1"></div>
 </div>
 <?php if($member) {
   echo "
@@ -248,4 +285,43 @@ if($house->type == 1) {
     <a href=\"newbill.php?id={$houseID}\" class=\"btn btn-primary\">New Bill</a>
   </div>";
 }
+
+if($po) {
+  echo "<hr>
+    <div class=\"row mt-3\">
+    <h5 class=\"text-center\">Bills to be put to the floor</h5>
+    <div class=\"col-sm-0 col-md-1 col-xl-3\"></div>
+    <div class=\"col-sm-12 col-md-10 col-xl-6\">
+        <table class=\"table table-dark\">
+            <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Author</th>
+                  <th>Stage</th>
+                  <th></th>
+                  <th></th>
+                </tr>
+            </thead>
+            <tbody>";
+    if(count($bills) > 0) {
+      foreach($bills as $bill) {
+        if($bill->Stage == 0) {
+          echo  "<tr>";
+          echo    "<td nowrap>{$bill->shortTitle}</td>";
+          $name = Person::getDisplayName($link, $bill->author);
+          echo    "<td>{$name}</td>";
+          $stage = Bill::$stages[$bill->Stage];
+          echo    "<td>{$stage}</td>";
+          echo    "<td><a class=\"btn btn-primary\" href=\"bill.php?id={$bill->ID}\">View</a></td>";
+          echo "</tr>";
+        }
+      }
+    }
+    echo "
+      </tbody>
+    </table>
+  </div>
+  <div class=\"col-sm-0 col-md-1 col-xl-3\"></div>";
+}
+
 include_once "footer.php"; ?>

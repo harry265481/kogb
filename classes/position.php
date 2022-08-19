@@ -5,6 +5,8 @@ class Position {
     public $ID;
     public $name;
 
+    static $termDesc = array("At His Majesty's Pleasure", "Life", "\"Good Behaviour\"", );
+
     public static function getPositionHolder($link) {}
 
     public static function getPositionName($link, $id) {

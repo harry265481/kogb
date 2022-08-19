@@ -17,6 +17,8 @@ class Party {
     static $scotlandStances = array("Further Integration", "Status Quo", "Devolution");
     static $irelandStances = array("Integration", "Status Quo", "Constitutionalism");
 
+    static $sides = array("Speaker", "Government", "Opposition", "Crossbench");
+
     static function getPartyDetails($link, $ID) {
         return mysqli_fetch_array(mysqli_query($link, "SELECT * FROM parties WHERE ID = {$ID}"));
     }

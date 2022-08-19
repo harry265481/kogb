@@ -7,7 +7,8 @@ if($_SESSION["adminlevel"] > 0){
 }
 $nav = new NavBar();
 $nav->addChild(new NavLink("home.php", "<i class=\"fa-solid fa-house\"></i>", "Home", "#sidebar"));
-$nav->addChild(new NavLink("pol-office.php", "<i class=\"fa-solid fa-building-flag\"></i>", "Political Office", "#sidebar"));
+$nav->addChild(new NavLink("office.php", "<i class=\"fa-solid fa-inbox\"></i>", "Office", "#sidebar"));
+$nav->addChild(new NavLink("pol-office.php", "<i class=\"fa-solid fa-building-flag\"></i>", "Election Office", "#sidebar"));
 $countryDropdown = new NavDropdown("country", "<img height=\"16px\" src=\"assets/icons/flags/{$player->nation->abbrev}.svg\"/>", $player->nation->name, "#sidebar");
 $countryDropdown->addChild(new NavLink("nation.php?id=1", "<i class=\"fa-solid fa-flag\"></i>", "Details", "#government-dropdown"));
 
@@ -30,19 +31,4 @@ if($isadmin) {
 }
 
 $nav->print();
-/*
-<a href="#" class="list-group-item list-group-item-dark border-end-0 d-inline-block text-truncate" data-bs-parent="#sidebar" data-bs-target="#econ-dropdown" data-bs-toggle="collapse"><i class="fa-solid fa-sterling-sign"></i> <span>Economy</span></a>
-<div id="econ-dropdown" class="collapse">
-    <div id="econ-nav" class="list-group border-0 rounded-0 text-sm-smart">
-        <a href="econmap.php" class="list-group-item list-group-item-dark border-end-0 d-inline-block text-truncate" data-bs-parent="#econ-dropdown"><i class="fa-solid fa-map"></i> <span>Map</span></a>
-        <a href="#" class="list-group-item list-group-item-dark border-end-0 d-inline-block text-truncate" data-bs-parent="#econ-dropdown" data-bs-target="#prod-dropdown" data-bs-toggle="collapse"><i class="fa-solid fa-industry"></i> <span>Production</span></a>
-        <div id="prod-dropdown" class="collapse">
-            <div id="prod-nav" class="list-group border-0 rounded-0 text-sm-smart">
-                <a href="econcountry.php" class="list-group-item list-group-item-dark border-end-0 d-inline-block text-truncate" data-bs-parent="#prod-dropdown"><i class="fa-solid fa-chart-pie"></i> <span>Stats</span></a>
-                <a href="recipes.php" class="list-group-item list-group-item-dark border-end-0 d-inline-block text-truncate" data-bs-parent="#prod-dropdown"> <span>Recipes</span></a>
-            </div>
-        </div>
-    </div>
-</div>
-*/
 ?>

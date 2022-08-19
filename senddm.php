@@ -30,4 +30,5 @@ function MakeRequest($endpoint, $data) {
     curl_close($ch);
     return json_decode($request, true);
 }
+//$newDM = MakeRequest('users/@me/channels', array("recipient_id" => $discordid));
 ?>

@@ -1,5 +1,7 @@
 <?php
 include_once __DIR__ . "/person.php";
+include_once __DIR__ . "/mp.php";
+include_once __DIR__ . "/constituency.php";
 class House {
     public $ID;
     public $members = array();
@@ -11,6 +13,7 @@ class House {
     public $presidingPositionName;
     public $presidingOfficer;
     public $presidingOfficerName;
+    public $MPs = array();
 
     function __construct($link, $ID) {
         $sHouse = mysqli_fetch_array(mysqli_query($link, "SELECT * FROM parliamenthouse WHERE ID = {$ID}"));
@@ -39,6 +42,13 @@ class House {
                     array_push($this->members, $p);
                 }
             }
+        } else if($this->type == 1) {
+            $data = mysqli_fetch_all(mysqli_query($link, "SELECT ID, seatID FROM employedmps"));
+            foreach($data as $mp) {
+                if(Constituency::getConstituencyParliament($link, $mp[1]) == $this->ID) {
+                    array_push($this->MPs, new MP($link, $mp[0]));
+                }
+            }
         }
     }
 
@@ -49,6 +59,18 @@ class House {
 
     static function getHouseName($link, $ID) {
         return mysqli_fetch_array(mysqli_query($link,"SELECT `Name` FROM parliamenthouse WHERE ID = {$ID}"))[0];
+    }
+
+    static function getHouseColor($link, $ID) {
+        return mysqli_fetch_array(mysqli_query($link,"SELECT `colorINT` FROM parliamenthouse WHERE ID = {$ID}"))[0];
+    }
+
+    static function getHouseChannelID($link, $ID) {
+        return mysqli_fetch_array(mysqli_query($link,"SELECT `channelID` FROM parliamenthouse WHERE ID = {$ID}"))[0];
+    }
+
+    static function getHouseType($link, $ID) {
+        return mysqli_fetch_array(mysqli_query($link,"SELECT `Type` FROM parliamenthouse WHERE ID = {$ID}"))[0];
     }
 }
 ?>

@@ -43,7 +43,7 @@ $nation = new Nation($link, $nationID);
                 foreach($parliament as $h) {
                     $name = House::getHouseName($link, $h);
                     echo "<div class=\"mt-2\">";
-                    echo "<a class=\"btn btn-primary\" href=\"parliamenthouse?id={$h}\">{$name}</a>";
+                    echo "<a class=\"btn btn-primary\" href=\"parliamenthouse.php?id={$h}\">{$name}</a>";
                     echo "</div>";
                 }
             }
@@ -62,7 +62,6 @@ $nation = new Nation($link, $nationID);
             mapboxgl.accessToken = 'pk.eyJ1IjoiaGFycnkyNjU0OCIsImEiOiJjbDZqd3VxZXEzbml5M2RwM2swcDE1OXZ1In0.gHBBefRRGqmBg2Izg8sDtA';
             const map = new mapboxgl.Map({
                 container: 'map', // container ID
-                //style: 'mapbox://styles/mapbox/light-v10', // style URL
                 style: 'mapbox://styles/harry26548/cl6n4y4ln005g15np0hgp2mk0', // style URL
                 center: [0.0, 51.5], // starting position [lng, lat]
                 zoom: 6, // starting zoom
@@ -72,7 +71,6 @@ $nation = new Nation($link, $nationID);
             <?php
                 foreach($nation->countries as $c) {
                     foreach($c->provinces as $p) {
-                        //echo "\"id\": \"{$p->name}layer\", \"source\": \"{$p->name}\", \"type\": \"fill\", \"paint\": { \"fill-color\": \"#00ff00\"},\n";
                         $filename = "NAME_" . $p->name . ".geojson";
                         echo "map.addSource('{$p->name}', {
                             'type': 'geojson',

@@ -26,6 +26,7 @@ class Nation {
         $this->headOfGovPos = $this->getNationGovPos($link);
         $this->commonMarket = new Market($link);
         $this->parliamentIDs = $this->getNationParliament($link);
+        $this->manpower = $this->getNationManpower($link);
     }
 
     private function getNationName($link) {
@@ -38,6 +39,10 @@ class Nation {
 
     private function getNationEmpire($link) {
         return mysqli_fetch_array(mysqli_query($link, "SELECT empire FROM nations WHERE ID = {$this->ID}"))[0];
+    }
+
+    private function getNationManpower($link) {
+        return mysqli_fetch_array(mysqli_query($link, "SELECT amount FROM manpowerreserves WHERE nation = {$this->ID}"))[0];
     }
 
     private function getNationGovPos($link) {

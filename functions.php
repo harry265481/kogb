@@ -516,48 +516,6 @@ function generateSeating($link, $house, $parliament) {
     }
 }
 
-function getMPColor($link, $mpid) {
-    $sql = 'SELECT employerID FROM EmployedMPs WHERE ID = ' . $mpid;
-    $sqlmp = mysqli_query($link, $sql);
-    $employer = mysqli_fetch_array($sqlmp, MYSQLI_ASSOC)['employerID'];
-    $sql = 'SELECT Party FROM people WHERE ID = ' . $employer;
-    $sqlparty = mysqli_query($link, $sql);
-    $party = mysqli_fetch_array($sqlparty, MYSQLI_ASSOC)['Party'];
-    $sql = 'SELECT Color FROM parties WHERE ID = ' . $party;
-    $sqlcolor = mysqli_query($link, $sql);
-    $color = mysqli_fetch_array($sqlcolor, MYSQLI_ASSOC)['Color'];
-    return $color;
-}
-
-function getMPPartyName($link, $mpid) {
-    $sql = 'SELECT employerID FROM EmployedMPs WHERE ID = ' . $mpid;
-    $sqlmp = mysqli_query($link, $sql);
-    $employer = mysqli_fetch_array($sqlmp, MYSQLI_ASSOC)['employerID'];
-    $sql = 'SELECT Party FROM people WHERE ID = ' . $employer;
-    $sqlparty = mysqli_query($link, $sql);
-    $party = mysqli_fetch_array($sqlparty, MYSQLI_ASSOC)['Party'];
-    $sql = 'SELECT Name FROM parties WHERE ID = ' . $party;
-    $sqlname = mysqli_query($link, $sql);
-    $name = mysqli_fetch_array($sqlname, MYSQLI_ASSOC)['Name'];
-    return $name;
-}
-
-function getMPPartyID($link, $mpid) {
-    $sql = "SELECT employerID FROM EmployedMPs WHERE ID = {$mpid}";
-    $sqlmp = mysqli_query($link, $sql);
-    $employer = mysqli_fetch_array($sqlmp, MYSQLI_ASSOC)['employerID'];
-    $sql = 'SELECT Party FROM people WHERE ID = ' . $employer;
-    $sqlparty = mysqli_query($link, $sql);
-    $party = mysqli_fetch_array($sqlparty, MYSQLI_ASSOC)['Party'];
-    return $party;
-}
-
-//usort callback for 2d array where it sorts by the second column
-function sortMPs($a, $b) {
-    if($a[1] == $b[1]) return 0;
-    return ($a[1] < $b[1]) ? 1: -1;
-}
-
 //LOTS TO DO HERE
 //very powerful
 //only use if you're certain of an election
@@ -1109,8 +1067,7 @@ function getPartyOfMPsInSeat($link, $seatID) {
 
 //returns array of MP IDs controlled by players in seat
 function getPlayerMPsInSeat($link, $seatID) {
-    $sql = "SELECT ID, employerID FROM EmployedMPs WHERE seatID = {$seatID}";
-    $mps = mysqli_fetch_all(mysqli_query($link, $sql), MYSQLI_BOTH);
+    $mps = mysqli_fetch_all(mysqli_query($link, "SELECT ID, employerID FROM EmployedMPs WHERE seatID = {$seatID}"), MYSQLI_BOTH);
     $playermps = array();
     foreach($mps as $mp) {
         if(!isNPC($link, $mp['employerID'])) {

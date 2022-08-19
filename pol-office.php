@@ -38,23 +38,25 @@ $sqlseatnames = mysqli_query($link, $sqlget);
 <div class="page-header pt-3">
   <h2>Political HQ</h2>
 </div>
-<div class="col-md-8 col-sm-12">
+<div class="col-md-10 col-sm-12">
   <h3>MPs</h3>
   <p>This is a list of persons you have hired to stand at elections</p>
   <p>People hired to stand at elections are given money to spend on things such as bribes, burgages, and to 'treat' the electors of the given seat. Also, sending more people than there are seats in a given constituency will have an adverse effect in that you will be splitting your own vote</p>
   <p>Balance: £<?php echo $balance; ?></p>
-  <button onclick="unhideMPHiring()" type="button" class="btn btn-primary">Hire an MP</button>
+  <button onclick="unhideMPHiring()" type="button" class="btn btn-primary mb-3">Hire an MP</button>
   <div id="hiring-div" style="display:none">
     <form action="pol-office.php" method="post">
-      <input type="number" name="money">
-      <select name="seat">
-        <?php
-          foreach($constituencies as $c) {
-            echo "<option value=\"{$c[0]}\">{$c[1]}</option>";
-          }
-        ?>
-      </select>
-      <button type="submit" class="btn btn-primary">Hire</button>
+      <div class="input-group mb-3">
+      <span class="input-group-text">Purse</span><input type="number" name="money" class="form-control">
+      </div>
+        <select class="form-select mb-3" name="seat">
+          <?php
+            foreach($constituencies as $c) {
+              echo "<option value=\"{$c[0]}\">{$c[1]}</option>";
+            }
+          ?>
+        </select>
+        <button type="submit" class="btn btn-primary">Hire</button>
     </form>
   </div>
   <div class="table-responsive">
@@ -62,6 +64,7 @@ $sqlseatnames = mysqli_query($link, $sqlget);
       <thead>
         <tr>
           <th>ID</th>
+          <th>Name</th>
           <th>Purse</th>
           <th>Seat</th>
         </tr>
@@ -70,10 +73,9 @@ $sqlseatnames = mysqli_query($link, $sqlget);
         <?php
         if($mps != false) {
           foreach($mps as $mp) {
-            //$seatname = mysql_result($sqlseatnames, $mp["seatID"] - 1);
-            $seatname = Constituency::getConstituencyName($link, $ID);
+            $seatname = Constituency::getConstituencyName($link, $mp[3]);
             $mpBal = number_format($mp[4]);
-            echo "<tr><td>{$mp[0]}</td><td>£{$mpBal}</td><td>{$seatname}</td></tr>";
+            echo "<tr><td>{$mp[0]}</td><td>{$mp[1]}</td><td>£{$mpBal}</td><td><a class=\"link-info\" href=\"seat.php?id={$mp[3]}\">{$seatname}</a></td></tr>";
           }
         }
         ?>

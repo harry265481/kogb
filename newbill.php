@@ -1,15 +1,16 @@
 <?php
-include_once 'header/header.php';
-include_once 'classes/bill.php';
+    include_once 'header/header.php';
+    include_once 'classes/bill.php';
 
-$houseID = $_GET['id'];
+    $houseID = $_GET['id'];
 
-if($_SERVER["REQUEST_METHOD"] == "POST") {
-    $shortTitle = $_POST['short-title'];
-    $longTitle = $_POST['long-title'];
-    $text = $_POST['text'];
-    Bill::insertNewBill($link, $shortTitle . " Act", "An act " . $longTitle, $text, $player->ID, $houseID);
-}
+    if($_SERVER["REQUEST_METHOD"] == "POST") {
+        $shortTitle = $_POST['short-title'];
+        $longTitle = $_POST['long-title'];
+        $text = $_POST['text'];
+        Bill::insertNewBill($link, $shortTitle . " Act", "An act " . $longTitle, $text, $player->ID, $houseID);
+        echo "<script>parent.self.location=\"parliamenthouse.php?id={$houseID}\"</script>";
+    }
 ?>
 <head><style>@font-face{font-family: newspaper; src: url("assets/OldNewspaperTypes.ttf")} #bill-output{font-family: newspaper} .drop-letter {float:left; font-size:250%; line-height:80%;} </style></head>
 <form id="bill-form" <?php echo "action=\"newbill.php?id={$houseID}\"" ?> method="post">

@@ -5,21 +5,12 @@ include_once 'classes/person.php';
 $partyID = $_GET['id'];
 $partyDetails = Party::getPartyDetails($link, $partyID);
 $position = $partyDetails[4];
-$side;
-if($position == 0) {
-    $side = "Speaker";
-} else if($position == 1) {
-    $side = "Government";
-} else if($position == 2) {
-    $side = "Opposition";
-} else if($position == 3) {
-    $side = "Crossbench";
-}
+$side = Party::$sides[$position];
 ?>
 <div class="page-header pt-3">
   <h2><?php echo $partyDetails[1];?></h2>
   <?php echo "<strong>Leader:</strong> " . Person::getDisplayName($link, $partyDetails['Leader']) . "<br>";?>
-  <?php echo "<strong>Position:</strong> " . $side . "<br>";?>
+  <?php echo "<strong>Position:</strong>{$side}<br>";?>
 </div>
 <div class="row">
     <div class="col-sm-12 col-md-10 col-lg-8" <?php echo "style=\"border-color:{$partyDetails[2]}; border-style: solid\""?> >
