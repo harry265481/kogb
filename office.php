@@ -4,6 +4,9 @@ include_once 'classes/position.php';
 include_once 'classes/unit.php';
 include_once 'classes/discord.php';
 include_once 'classes/army.php';
+include_once 'classes/ship.php';
+include_once 'classes/fleet.php';
+
 $nationID = $player->nation->ID;
 $houseIDs = json_decode(mysqli_fetch_array(mysqli_query($link, "SELECT houseIDs FROM parliament INNER JOIN nations ON parliament.nationID = nations.ID WHERE nations.ID = {$nationID}"))[0]);
 $members = array();
@@ -169,6 +172,46 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         </form>
     <?php endif ?>
 <?php endif ?>
+<?php if($player->hasNavyPerms()): ?>
+    <?php //if($player->canOrderShips()): ?>
+        <form action="office.php" method="post" name="orderShip">
+            <div class="modal fade text-dark" id="orderShipModal" tabindex="-1" aria-labelledby="orderShipModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="orderShipModalLabel">Create New Army</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="input-group mb-3">
+                                <span class="input-group-text">Name</span>
+                                <input class="form-control" id="shipName" type="text" name="shipName">
+                            </div>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text">Guns</span>
+                                <input class="form-control" id="guns" name="shipGuns" type="number" min="0" max="100" onchange="updateNewShip()">
+                            </div>
+                        </div>
+                            <p id="pShipText"></p>
+                            <script>
+                                function updateNewShip() {
+                                    var num = document.getElementById("guns").value;
+                                    var totalCost = Math.round(660 * num);
+                                    document.getElementById("pShipText").innerHTML = "A new ship of " + num + " guns would cost £" + Intl.NumberFormat().format(totalCost) + " to build";
+                                }
+                            </script>
+                        <input type="hidden" id="positionID" name="positionID" value="0">
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" name="orderShip" value="1" class="btn btn-primary">Order</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    <?php //endif ?>
+<?php endif ?>
+
 
 <div class="page-header pt-3">
     <h2>Your office</h2>
@@ -188,13 +231,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                 <button class="nav-link" id="nav-appoint-tab" data-bs-toggle="tab" data-bs-target="#appointTab">Appointments</button>
                 <?php if($player->hasArmyPerms()): ?>
-                    <button class="nav-link active" id="nav-army-tab" data-bs-toggle="tab" data-bs-target="#armyTab">Army</button>
+                    <button class="nav-link" id="nav-army-tab" data-bs-toggle="tab" data-bs-target="#armyTab">Army</button>
                 <?php endif ?>
                 <?php if($player->hasOrdnancePerms()): ?>
                     <button class="nav-link" id="nav-navy-tab" data-bs-toggle="tab" data-bs-target="#ordnanceTab">Ordnance</button>
                 <?php endif ?>
                 <?php if($player->hasNavyPerms()): ?>
-                    <button class="nav-link" id="nav-navy-tab" data-bs-toggle="tab" data-bs-target="#navyTab">Navy</button>
+                    <button class="nav-link active" id="nav-navy-tab" data-bs-toggle="tab" data-bs-target="#navyTab">Navy</button>
                 <?php endif ?>
                 <?php if($player->hasPeeragePerms()): ?>
                     <button class="nav-link" id="nav-navy-tab" data-bs-toggle="tab" data-bs-target="#peerageTab">Peerage</button>
@@ -238,7 +281,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
                 </table>
             </div>
             <?php if($player->hasArmyPerms()): ?>
-            <div class="tab-pane fade show active" id="armyTab" role="tabpanel" tabindex="0">
+            <div class="tab-pane" id="armyTab" role="tabpanel" tabindex="0">
                 <?php if($player->canCreateUnits()): ?>
                     <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#createUnitModal">Create New Unit</button>
                 <?php endif ?>
@@ -331,7 +374,65 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="tab-pane" id="ordnanceTab" role="tabpanel" tabindex="0"></div>
             <?php endif ?>
             <?php if($player->hasNavyPerms()): ?>
-            <div class="tab-pane" id="navyTab" role="tabpanel" tabindex="0"></div>
+            <div class="tab-pane fade show active" id="navyTab" role="tabpanel" tabindex="0">
+                <a class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#orderShipModal">Order New Ship</a>
+                <table class="table table-dark">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th class="d-sm-none d-lg-table-cell">Rate</th>
+                            <th>Guns</th>
+                            <th class="d-sm-none d-lg-table-cell">Type</th>
+                            <th class="d-sm-none d-lg-table-cell">Approx. Max Crew</th>
+                            <th>Fleet</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                            $ships = Ship::getAllShips($link);
+                            $fleetNames = Fleet::getFleetNames($link);
+                            $rate = 0;
+                            $rateName = "";
+                            $typeName = "";
+                            foreach($ships as $ship) {
+                                echo "<tr>";
+                                echo "<td class=\"d-sm-table-cell d-lg-none\"><a class=\"link-info\" href=\"ship.php?id={$ship['ID']}\"><i>{$ship['name']}</i></a></td>";
+                                echo "<td class=\"d-sm-none d-lg-table-cell\"><i>{$ship['name']}</i></td>";
+                                $guns = $ship['guns'];
+                                foreach(Ship::$rates as $r => $n) {
+                                    if($guns >= $n) {
+                                        $rate = $r;
+                                        $rateName = Ship::$rateWords[$r];
+                                        break;
+                                    }
+                                }
+                                echo "<td class=\"d-sm-none d-lg-table-cell\">{$rateName}</td>";
+                                echo "<td>{$guns}</td>";
+                                foreach(Ship::$type as $t => $n) {
+                                    if($guns >= $n) {
+                                        $typeName = Ship::$typeWords[$t];
+                                        break;
+                                    }
+                                }
+                                echo "<td class=\"d-sm-none d-lg-table-cell\">{$typeName}</td>";
+                                $crew = round(Ship::$totalCrewPerGuns[$rate] * $guns);
+                                echo "<td class=\"d-sm-none d-lg-table-cell\">{$crew}</td>";
+                                $status = Ship::$statusWords[$ship['status']];
+                                if($ship['fleet'] == "" || $ship['fleet'] == null || $ship['fleet'] == 0) {
+                                    echo "<td></td>";
+                                } else {
+                                    $fleetName = Fleet::getFleetName($link, $ship['fleet']);
+                                    echo "<td>{$fleetName}</td>";
+                                }
+                                echo "<td>{$status}</td>";
+                                echo "<td class=\"d-sm-none d-lg-table-cell\"><a class=\"btn btn-primary\" href=\"ship.php?id={$ship['ID']}\">View</a></td>";
+                                echo "</tr>";
+                            }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
             <?php endif ?>
             <?php if($player->hasPeeragePerms()): ?>
             <div class="tab-pane" id="peerageTab" role="tabpanel" tabindex="0"></div>

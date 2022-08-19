@@ -38,7 +38,7 @@ $result = curl_exec($ch);
 $result = json_decode($result, true);
 include_once "config.php";
 $link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
-$dUser = $result['id'];
+$dUser = "879823038303047771";
 
 //Check if an account already exists
 $res = mysqli_fetch_all(mysqli_query($link, "SELECT id, adminlevel FROM users WHERE discordID = \"{$dUser}\""), MYSQLI_ASSOC);
